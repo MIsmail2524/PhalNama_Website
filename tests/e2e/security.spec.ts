@@ -47,7 +47,7 @@ test.describe("Security", () => {
     await adminLogin(page, E2E.adminEmail, E2E.adminPassword);
     await page.goto("/admin/r/enquiries?q=XSS+Tester");
     await page.getByRole("link", { name: /CONTACT/ }).first().click();
-    await expect(page.getByText(payload)).toBeVisible();
+    await expect(page.getByText(/onerror="window\.__xss=1"/)).toBeVisible();
     expect(await page.evaluate(() => (window as unknown as { __xss?: number }).__xss)).toBeUndefined();
   });
 

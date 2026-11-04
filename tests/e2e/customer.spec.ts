@@ -39,7 +39,7 @@ test.describe("Customer journeys", () => {
     await fillCheckout(page, { phone: uniquePhone() });
     await page.getByLabel(/This is a gift/).check();
     await page.getByLabel("Recipient's name").fill("Amna");
-    await page.getByLabel("Your message", { exact: false }).first().fill("Eid Mubarak from the orchards");
+    await page.getByRole("textbox", { name: /Your message/ }).fill("Eid Mubarak from the orchards");
     await expect(page.getByLabel("Card preview")).toContainText("Dear Amna");
     await page.getByRole("button", { name: "Place order" }).click();
     await expect(page.getByText(/Your gift for Amna/)).toBeVisible();

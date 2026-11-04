@@ -27,7 +27,7 @@ test.describe("Mobile & accessibility", () => {
 
   test("sticky add-to-bag bar appears after scrolling past the buy box", async ({ page }) => {
     await page.goto("/shop/bhalwal-kinnow");
-    await page.mouse.wheel(0, 2500);
+    await page.evaluate(() => window.scrollTo(0, 2500));
     await expect(page.locator(".sticky-buy")).toBeVisible();
   });
 
