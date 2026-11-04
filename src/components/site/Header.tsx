@@ -53,8 +53,8 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
           </button>
 
           <Link href="/" aria-label={`${brandName} home`} className="shrink-0">
-            <Logo tone={tone} name={brandName} nameUrdu={brandUrdu} className="hidden sm:inline-flex" />
-            <Logo tone={tone} variant="compact" name={brandName} className="sm:hidden" />
+            <span className="hidden sm:block"><Logo tone={tone} name={brandName} nameUrdu={brandUrdu} /></span>
+            <span className="block sm:hidden"><Logo tone={tone} variant="compact" name={brandName} /></span>
           </Link>
 
           <nav className="hidden flex-1 justify-center xl:flex" aria-label="Main">

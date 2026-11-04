@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Phalnama — پھل نامہ
 
-## Getting Started
+Premium Pakistani fruit brand e-commerce site with a full admin dashboard.
+Next.js 15 (App Router) · TypeScript · Tailwind CSS 4 · Prisma 6 · PostgreSQL.
 
-First, run the development server:
+## Run locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .env.example .env          # set AUTH_SECRET, SEED_ADMIN_EMAIL, SEED_ADMIN_PASSWORD
+npm run db:up                 # Postgres in Docker (or: npm run db:local — no Docker needed)
+npm run db:migrate            # create tables
+npm run db:seed               # categories, Kinnow product, pages, journal, first admin
+npm run dev                   # http://localhost:3000  ·  admin: /admin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Add more admins: `npm run admin:create -- email@example.com "Name" MANAGER`
+(roles: OWNER, MANAGER, FULFILMENT, EDITOR).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tests
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm test                      # pricing + phone unit tests
+npm run test:integration      # order, stock, coupon, referral, loyalty flow (needs DB)
+```
 
-## Learn More
+## Managing the business (all in /admin)
 
-To learn more about Next.js, take a look at the following resources:
+- **Prices / packs / stock:** Products & packs. Packs without a price show "Price announced soon".
+- **New fruit:** Fruit categories → add (status Upcoming to tease, Active to sell) → add a product in it.
+- **Harvest batches & QR:** Batches → New batch → print labels. QR opens `/trace/<code>`.
+- **Delivery charges:** Delivery zones (base fee + per-kg + free threshold, per city list).
+- **Payments:** Settings → Payments (COD, bank transfer, online gateway).
+- **Homepage, story, journal, FAQs, banners, policies:** Content section.
+- **Loyalty, referrals, coupons, campaigns:** Marketing section. The launch checklist on the overview lists what still needs setting.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy (Vercel)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. Create a hosted Postgres (Neon / Supabase) and a Vercel Blob store.
+2. Set env vars from `.env.example` in Vercel (`DATABASE_URL`, `AUTH_SECRET`, `NEXT_PUBLIC_SITE_URL`, `BLOB_READ_WRITE_TOKEN`, `CRON_SECRET`, …).
+3. Run `npx prisma migrate deploy` and `npm run db:seed` against the production DB once.
+4. `vercel.json` schedules the daily referral-reward job.
 
-## Deploy on Vercel
+## Integrations needing credentials
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Email: `RESEND_API_KEY`, `EMAIL_FROM`
+- WhatsApp Business Cloud API: `WHATSAPP_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID`
+- Online payments: implement a gateway in `src/lib/payments/index.ts` (`OnlineGateway`). `PAYMENT_GATEWAY=test` enables a dev-only simulator.
+- Analytics: GA4 / Meta Pixel IDs in Settings → Analytics (load only after cookie consent).
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Without credentials, messages are logged as SKIPPED and can be sent by hand from each order page.
