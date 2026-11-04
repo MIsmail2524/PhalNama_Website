@@ -87,7 +87,7 @@ export default async function HomePage() {
                         </li>
                       ))}
                     </ul>
-                    <Link href="/shop?view=upcoming" className="mt-8 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-forest">
+                    <Link href="/shop#upcoming" className="mt-8 inline-flex items-center gap-2 text-[12px] font-semibold uppercase tracking-[0.18em] text-forest">
                       Notify me <IconArrow />
                     </Link>
                   </div>
