@@ -34,7 +34,7 @@ export function QuickAdd({ product, variants, purchasable }: { product: { name: 
             role="radio"
             aria-checked={selected === x.id}
             onClick={() => setSelected(x.id)}
-            className={`min-h-9 border px-3 text-xs font-medium transition ${selected === x.id ? "border-forest bg-forest text-ivory" : "border-sand-300 text-charcoal hover:border-forest"} ${!variantAvailable(x) ? "opacity-60" : ""}`}
+            className={`min-h-11 border px-3 text-xs font-medium transition ${selected === x.id ? "border-forest bg-forest text-ivory" : "border-sand-300 text-charcoal hover:border-forest"} ${!variantAvailable(x) ? "opacity-60" : ""}`}
           >
             {x.name}
           </button>

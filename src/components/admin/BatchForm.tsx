@@ -1,4 +1,5 @@
 "use client";
+import { useUnsavedGuard } from "./UnsavedGuard";
 import { useActionState, useState } from "react";
 import type { Batch } from "@prisma/client";
 import { saveBatchAction } from "@/app/admin/(panel)/actions";
@@ -15,13 +16,14 @@ export function BatchForm({ id, batch, products, origins }: {
   origins: { id: string; name: string }[];
 }) {
   const [state, action] = useActionState(saveBatchAction.bind(null, id), null);
+  const guard = useUnsavedGuard();
   const [productId, setProductId] = useState(batch?.productId ?? products[0]?.id ?? "");
   const product = products.find((p) => p.id === productId);
   return (
-    <form action={action} className="admin-card space-y-5 p-6">
+    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={action} className="admin-card space-y-5 p-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <div className="grid gap-5 md:grid-cols-2">
-        <div><label className="admin-label">Batch code</label><input name="code" defaultValue={batch?.code} placeholder="Leave empty to generate" className="admin-input font-mono uppercase" /></div>
+        <label className="block"><span className="admin-label">Batch code</span><input name="code" defaultValue={batch?.code} placeholder="Leave empty to generate" className="admin-input font-mono uppercase" /></label>
         <div>
           <label className="admin-label">Product *</label>
           <select name="productId" value={productId} onChange={(e) => setProductId(e.target.value)} className="admin-input">
@@ -42,16 +44,16 @@ export function BatchForm({ id, batch, products, origins }: {
             {origins.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
           </select>
         </div>
-        <div><label className="admin-label">Orchard / block</label><input name="orchardBlock" defaultValue={batch?.orchardBlock ?? ""} className="admin-input" placeholder="e.g. Block 7" /></div>
-        <div><label className="admin-label">Selection grade</label><input name="grade" defaultValue={batch?.grade ?? ""} className="admin-input" placeholder="As recorded at sorting" /></div>
-        <div><label className="admin-label">Harvest date</label><input name="harvestDate" type="date" defaultValue={d(batch?.harvestDate)} className="admin-input" /></div>
-        <div><label className="admin-label">Packing date</label><input name="packingDate" type="date" defaultValue={d(batch?.packingDate)} className="admin-input" /></div>
-        <div><label className="admin-label">Cartons packed</label><input name="quantityPacked" type="number" min={0} defaultValue={batch?.quantityPacked ?? ""} className="admin-input" /></div>
-        <div><label className="admin-label">Net weight per carton (kg)</label><input name="netWeightKg" type="number" step="0.01" defaultValue={batch?.netWeightKg ?? ""} className="admin-input" /></div>
+        <label className="block"><span className="admin-label">Orchard / block</span><input name="orchardBlock" defaultValue={batch?.orchardBlock ?? ""} className="admin-input" placeholder="e.g. Block 7" /></label>
+        <label className="block"><span className="admin-label">Selection grade</span><input name="grade" defaultValue={batch?.grade ?? ""} className="admin-input" placeholder="As recorded at sorting" /></label>
+        <label className="block"><span className="admin-label">Harvest date</span><input name="harvestDate" type="date" defaultValue={d(batch?.harvestDate)} className="admin-input" /></label>
+        <label className="block"><span className="admin-label">Packing date</span><input name="packingDate" type="date" defaultValue={d(batch?.packingDate)} className="admin-input" /></label>
+        <label className="block"><span className="admin-label">Cartons packed</span><input name="quantityPacked" type="number" min={0} defaultValue={batch?.quantityPacked ?? ""} className="admin-input" /></label>
+        <label className="block"><span className="admin-label">Net weight per carton (kg)</span><input name="netWeightKg" type="number" step="0.01" defaultValue={batch?.netWeightKg ?? ""} className="admin-input" /></label>
         {!id && <label className="flex items-center gap-2 text-sm md:col-span-2"><input type="checkbox" name="addToStock" defaultChecked className="accent-forest" /> Add cartons packed to the pack&apos;s available stock</label>}
       </div>
       <div><label className="admin-label">Batch story</label><MarkdownField name="story" defaultValue={batch?.story} /></div>
-      <div><label className="admin-label">Quality notes</label><textarea name="qualityNotes" rows={3} defaultValue={batch?.qualityNotes ?? ""} className="admin-input" /></div>
+      <label className="block"><span className="admin-label">Quality notes</span><textarea name="qualityNotes" rows={3} defaultValue={batch?.qualityNotes ?? ""} className="admin-input" /></label>
       <div><label className="admin-label">Harvest photographs</label><ImagesField name="harvestPhotos" defaultValue={batch?.harvestPhotos ?? []} folder="batches" /></div>
       <div><label className="admin-label">Packing photographs</label><ImagesField name="packingPhotos" defaultValue={batch?.packingPhotos ?? []} folder="batches" /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={batch?.published ?? true} className="accent-forest" /> Trace page visible to customers</label>

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect } from "react";
+import { useDialog } from "@/components/ui/useDialog";
 import { useCart } from "./CartProvider";
 import { QuantityStepper } from "./QuantityStepper";
 import { IconClose, IconBag } from "@/components/ui/Icons";
@@ -10,26 +10,16 @@ import { OrchardScene } from "@/components/ui/OrchardScene";
 
 export function CartDrawer() {
   const { items, open, setOpen, setQuantity, remove, subtotal } = useCart();
-
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [open, setOpen]);
+  const ref = useDialog<HTMLDivElement>(open, () => setOpen(false));
 
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-label="Your bag">
-      <button className="absolute inset-0 animate-fade bg-forest-950/40" aria-label="Close bag" onClick={() => setOpen(false)} />
+    <div ref={ref} className="fixed inset-0 z-[70]" role="dialog" aria-modal="true" aria-labelledby="bag-title">
+      <div className="absolute inset-0 animate-fade bg-forest-950/40" aria-hidden onClick={() => setOpen(false)} />
       <aside className="absolute right-0 top-0 flex h-full w-full max-w-md animate-drawer flex-col bg-ivory shadow-2xl">
         <header className="flex items-center justify-between border-b border-sand-300 px-6 py-5">
-          <h2 className="font-display text-2xl text-forest">Your bag</h2>
-          <button onClick={() => setOpen(false)} aria-label="Close" className="p-1 text-forest"><IconClose /></button>
+          <h2 id="bag-title" className="font-display text-2xl text-forest">Your bag <span className="sr-only">({items.length} items)</span></h2>
+          <button data-autofocus onClick={() => setOpen(false)} aria-label="Close bag" className="grid h-11 w-11 place-items-center text-forest"><IconClose /></button>
         </header>
 
         {items.length === 0 ? (
@@ -54,7 +44,7 @@ export function CartDrawer() {
                       <QuantityStepper small value={i.quantity} onChange={(q) => setQuantity(i.variantId, q)} />
                       <p className="text-sm font-semibold tabular-nums">{formatPKR(i.unitPrice * i.quantity)}</p>
                     </div>
-                    <button onClick={() => remove(i.variantId)} className="mt-2 self-start text-xs text-stone underline underline-offset-2 hover:text-danger">Remove</button>
+                    <button onClick={() => remove(i.variantId)} aria-label={`Remove ${i.productName} ${i.variantName}`} className="mt-1 min-h-8 self-start text-xs text-stone underline underline-offset-2 hover:text-danger">Remove</button>
                   </div>
                 </li>
               ))}

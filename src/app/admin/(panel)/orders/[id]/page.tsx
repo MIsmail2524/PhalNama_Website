@@ -164,9 +164,9 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               </ul>
             )}
             <form action={addAdjustmentAction.bind(null, id)} className="flex flex-wrap items-end gap-3">
-              <div><label className="admin-label">Type</label><select name="type" className="admin-input"><option>REFUND</option><option>REPLACEMENT</option></select></div>
-              <div><label className="admin-label">Amount (PKR)</label><input name="amount" type="number" min={0} className="admin-input !w-32" /></div>
-              <div className="flex-1"><label className="admin-label">Reason</label><input name="reason" required className="admin-input" placeholder="e.g. 3 fruit bruised in transit — photos on WhatsApp" /></div>
+              <label className="block"><span className="admin-label">Type</span><select name="type" className="admin-input"><option>REFUND</option><option>REPLACEMENT</option></select></label>
+              <label className="block"><span className="admin-label">Amount (PKR)</span><input name="amount" type="number" min={0} className="admin-input !w-32" /></label>
+              <label className="block flex-1"><span className="admin-label">Reason</span><input name="reason" required className="admin-input" placeholder="e.g. 3 fruit bruised in transit — photos on WhatsApp" /></label>
               <SubmitButton className="admin-btn-secondary">Add</SubmitButton>
             </form>
           </Card>

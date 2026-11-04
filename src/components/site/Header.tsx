@@ -7,6 +7,7 @@ import { Logo } from "@/components/brand/Logo";
 import { IconBag, IconClose, IconMenu, IconSearch, IconUser, IconWhatsApp } from "@/components/ui/Icons";
 import { useCart } from "@/components/shop/CartProvider";
 import { SearchOverlay } from "./SearchOverlay";
+import { useDialog } from "@/components/ui/useDialog";
 
 export const NAV = [
   { href: "/shop", label: "Shop" },
@@ -34,9 +35,7 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
   }, []);
 
   useEffect(() => setMenu(false), [pathname]);
-  useEffect(() => {
-    document.body.style.overflow = menu ? "hidden" : "";
-  }, [menu]);
+  const menuRef = useDialog<HTMLDivElement>(menu, () => setMenu(false));
 
   const tone = overlay ? "light" : "dark";
   return (
@@ -48,7 +47,7 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
         )}
       >
         <div className="container-x flex h-[72px] items-center justify-between gap-6">
-          <button className="-ml-1 p-1 xl:hidden" aria-label="Open menu" onClick={() => setMenu(true)}>
+          <button className="-ml-2 grid h-11 w-11 place-items-center xl:hidden" aria-label="Open menu" aria-expanded={menu} aria-controls="mobile-menu" onClick={() => setMenu(true)}>
             <IconMenu />
           </button>
 
@@ -63,6 +62,7 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
                 <li key={n.href}>
                   <Link
                     href={n.href}
+                    aria-current={pathname.startsWith(n.href) ? "page" : undefined}
                     className={clsx(
                       "whitespace-nowrap text-[12px] font-semibold uppercase tracking-[0.16em] transition-opacity hover:opacity-100",
                       pathname.startsWith(n.href) ? "opacity-100" : "opacity-75",
@@ -76,13 +76,13 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
           </nav>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <button className="p-2" aria-label="Search" onClick={() => setSearch(true)}>
+            <button className="grid h-11 w-11 place-items-center" aria-label="Search" onClick={() => setSearch(true)}>
               <IconSearch />
             </button>
-            <Link href="/account" className="hidden p-2 sm:block" aria-label="Account">
+            <Link href="/account" className="hidden h-11 w-11 place-items-center sm:grid" aria-label="Account">
               <IconUser />
             </Link>
-            <button className="relative p-2" aria-label={`Bag, ${count} items`} onClick={() => setOpen(true)}>
+            <button className="relative grid h-11 w-11 place-items-center" aria-label={`Bag, ${count} items`} onClick={() => setOpen(true)}>
               <IconBag />
               {ready && count > 0 && (
                 <span className="absolute right-0.5 top-0.5 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-citrus px-1 text-[10px] font-bold text-forest-950">
@@ -95,12 +95,12 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
       </header>
 
       {menu && (
-        <div className="fixed inset-0 z-[60] xl:hidden" role="dialog" aria-modal="true" aria-label="Menu">
-          <button className="absolute inset-0 animate-fade bg-forest-950/50" aria-label="Close menu" onClick={() => setMenu(false)} />
+        <div ref={menuRef} id="mobile-menu" className="fixed inset-0 z-[60] xl:hidden" role="dialog" aria-modal="true" aria-label="Menu">
+          <div className="absolute inset-0 animate-fade bg-forest-950/50" aria-hidden onClick={() => setMenu(false)} />
           <div className="absolute inset-y-0 left-0 flex w-[86%] max-w-sm animate-rise flex-col bg-forest text-ivory">
             <div className="flex h-[72px] items-center justify-between px-6">
               <Logo tone="light" variant="compact" name={brandName} />
-              <button aria-label="Close menu" onClick={() => setMenu(false)}><IconClose /></button>
+              <button data-autofocus aria-label="Close menu" className="grid h-11 w-11 place-items-center" onClick={() => setMenu(false)}><IconClose /></button>
             </div>
             <nav className="flex-1 overflow-y-auto px-6 pt-6" aria-label="Mobile">
               <ul className="space-y-1">

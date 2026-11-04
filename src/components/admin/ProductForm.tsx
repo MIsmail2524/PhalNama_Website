@@ -1,4 +1,5 @@
 "use client";
+import { useUnsavedGuard } from "./UnsavedGuard";
 import { useActionState, useState } from "react";
 import type { Product, ProductVariant } from "@prisma/client";
 import { saveProductAction } from "@/app/admin/(panel)/actions";
@@ -50,17 +51,18 @@ export function ProductForm({ id, product, categories, origins }: {
   origins: { id: string; name: string }[];
 }) {
   const [state, action] = useActionState(saveProductAction.bind(null, id), null);
+  const guard = useUnsavedGuard();
   const [variants, setVariants] = useState<V[]>(product?.variants.map(toV) ?? [blank(1)]);
   const upd = (i: number, patch: Partial<V>) => setVariants((vs) => vs.map((v, k) => (k === i ? { ...v, ...patch } : v)));
 
   return (
-    <form action={action} className="space-y-6">
+    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={action} className="space-y-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <input type="hidden" name="variants" value={JSON.stringify(variants.map((v) => ({ ...v, netWeightKg: v.netWeightKg || "0", stock: v.stock || "0" })))} />
 
       <Card title="Basics">
         <div className="grid gap-5 md:grid-cols-2">
-          <div><label className="admin-label">Name *</label><input name="name" required defaultValue={product?.name} className="admin-input" /></div>
+          <label className="block"><span className="admin-label">Name *</span><input name="name" required defaultValue={product?.name} className="admin-input" /></label>
           <div><label className="admin-label">URL slug</label><SlugField name="slug" from="name" defaultValue={product?.slug} /></div>
           <div>
             <label className="admin-label">Category *</label>
@@ -84,10 +86,10 @@ export function ProductForm({ id, product, categories, origins }: {
               <option value="ARCHIVED">Archived</option>
             </select>
           </div>
-          <div><label className="admin-label">Sort order</label><input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? 0} className="admin-input" /></div>
+          <label className="block"><span className="admin-label">Sort order</span><input name="sortOrder" type="number" defaultValue={product?.sortOrder ?? 0} className="admin-input" /></label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="featured" defaultChecked={product?.featured ?? true} className="accent-forest" /> Feature on homepage</label>
           <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="giftable" defaultChecked={product?.giftable ?? true} className="accent-forest" /> Can be sent as a gift</label>
-          <div className="md:col-span-2"><label className="admin-label">Short description</label><textarea name="shortDescription" rows={2} defaultValue={product?.shortDescription ?? ""} className="admin-input" /></div>
+          <label className="block md:col-span-2"><span className="admin-label">Short description</span><textarea name="shortDescription" rows={2} defaultValue={product?.shortDescription ?? ""} className="admin-input" /></label>
         </div>
       </Card>
 
@@ -101,14 +103,14 @@ export function ProductForm({ id, product, categories, origins }: {
           {variants.map((v, i) => (
             <div key={v.id ?? `new-${i}`} className={`rounded border p-4 ${v._delete ? "border-danger/40 bg-danger/5 opacity-60" : "border-sand-300"}`}>
               <div className="grid gap-3 md:grid-cols-6">
-                <div className="md:col-span-2"><label className="admin-label">Pack name *</label><input value={v.name} onChange={(e) => upd(i, { name: e.target.value })} className="admin-input" placeholder="5 KG Family Pack" /></div>
-                <div><label className="admin-label">Net fruit weight (kg) *</label><input value={v.netWeightKg} onChange={(e) => upd(i, { netWeightKg: e.target.value })} type="number" step="0.1" className="admin-input" /></div>
-                <div><label className="admin-label">Price (PKR)</label><input value={v.price} onChange={(e) => upd(i, { price: e.target.value })} type="number" className="admin-input" placeholder="Not set" /></div>
-                <div><label className="admin-label">Compare-at (PKR)</label><input value={v.compareAtPrice} onChange={(e) => upd(i, { compareAtPrice: e.target.value })} type="number" className="admin-input" /></div>
-                <div><label className="admin-label">Stock</label><input value={v.stock} onChange={(e) => upd(i, { stock: e.target.value })} type="number" min={0} className="admin-input" disabled={!v.trackStock} /></div>
-                <div><label className="admin-label">SKU</label><input value={v.sku} onChange={(e) => upd(i, { sku: e.target.value })} className="admin-input" /></div>
-                <div className="md:col-span-2"><label className="admin-label">Packaging</label><input value={v.packaging} onChange={(e) => upd(i, { packaging: e.target.value })} className="admin-input" placeholder="Family carton" /></div>
-                <div className="md:col-span-3"><label className="admin-label">Pack description</label><input value={v.description} onChange={(e) => upd(i, { description: e.target.value })} className="admin-input" /></div>
+                <label className="block md:col-span-2"><span className="admin-label">Pack name *</span><input value={v.name} onChange={(e) => upd(i, { name: e.target.value })} className="admin-input" placeholder="5 KG Family Pack" /></label>
+                <label className="block"><span className="admin-label">Net fruit weight (kg) *</span><input value={v.netWeightKg} onChange={(e) => upd(i, { netWeightKg: e.target.value })} type="number" step="0.1" className="admin-input" /></label>
+                <label className="block"><span className="admin-label">Price (PKR)</span><input value={v.price} onChange={(e) => upd(i, { price: e.target.value })} type="number" className="admin-input" placeholder="Not set" /></label>
+                <label className="block"><span className="admin-label">Compare-at (PKR)</span><input value={v.compareAtPrice} onChange={(e) => upd(i, { compareAtPrice: e.target.value })} type="number" className="admin-input" /></label>
+                <label className="block"><span className="admin-label">Stock</span><input value={v.stock} onChange={(e) => upd(i, { stock: e.target.value })} type="number" min={0} className="admin-input" disabled={!v.trackStock} /></label>
+                <label className="block"><span className="admin-label">SKU</span><input value={v.sku} onChange={(e) => upd(i, { sku: e.target.value })} className="admin-input" /></label>
+                <label className="block md:col-span-2"><span className="admin-label">Packaging</span><input value={v.packaging} onChange={(e) => upd(i, { packaging: e.target.value })} className="admin-input" placeholder="Family carton" /></label>
+                <label className="block md:col-span-3"><span className="admin-label">Pack description</span><input value={v.description} onChange={(e) => upd(i, { description: e.target.value })} className="admin-input" /></label>
               </div>
               <div className="mt-3 flex flex-wrap items-center gap-5 text-sm">
                 <label className="flex items-center gap-2"><input type="checkbox" checked={v.active} onChange={(e) => upd(i, { active: e.target.checked })} className="accent-forest" /> Available</label>
@@ -131,14 +133,14 @@ export function ProductForm({ id, product, categories, origins }: {
           <div><label className="admin-label">About this fruit</label><MarkdownField name="description" defaultValue={product?.description} /></div>
           <div><label className="admin-label">How we select / grade</label><MarkdownField name="selectionInfo" defaultValue={product?.selectionInfo} /></div>
           <div><label className="admin-label">Delivery information</label><MarkdownField name="deliveryInfo" defaultValue={product?.deliveryInfo} /></div>
-          <div><label className="admin-label">Natural variation note</label><textarea name="variationNote" rows={2} defaultValue={product?.variationNote ?? "Natural fruit varies slightly in size, shape and appearance."} className="admin-input" /></div>
+          <label className="block"><span className="admin-label">Natural variation note</span><textarea name="variationNote" rows={2} defaultValue={product?.variationNote ?? "Natural fruit varies slightly in size, shape and appearance."} className="admin-input" /></label>
         </div>
       </Card>
 
       <Card title="Search engines">
         <div className="grid gap-5 md:grid-cols-2">
-          <div><label className="admin-label">SEO title</label><input name="seoTitle" defaultValue={product?.seoTitle ?? ""} className="admin-input" /></div>
-          <div><label className="admin-label">SEO description</label><textarea name="seoDescription" rows={2} defaultValue={product?.seoDescription ?? ""} className="admin-input" /></div>
+          <label className="block"><span className="admin-label">SEO title</span><input name="seoTitle" defaultValue={product?.seoTitle ?? ""} className="admin-input" /></label>
+          <label className="block"><span className="admin-label">SEO description</span><textarea name="seoDescription" rows={2} defaultValue={product?.seoDescription ?? ""} className="admin-input" /></label>
         </div>
       </Card>
 

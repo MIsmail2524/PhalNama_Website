@@ -1,4 +1,5 @@
 "use client";
+import { useUnsavedGuard } from "./UnsavedGuard";
 import { useActionState } from "react";
 import { clsx } from "clsx";
 import type { Field } from "@/admin/fields";
@@ -29,10 +30,11 @@ export function ResourceForm({ resourceKey, id, fields, row, relationOptions, de
 }) {
   const action = saveResourceAction.bind(null, resourceKey, id);
   const [state, formAction] = useActionState<AdminFormState, FormData>(action, null);
+  const guard = useUnsavedGuard();
   const val = (f: Field) => (row ? row[f.name] : defaults?.[f.name]);
 
   return (
-    <form action={formAction} className="space-y-6">
+    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={formAction} className="space-y-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <div className="grid gap-5 md:grid-cols-2">
         {fields.map((f) => {

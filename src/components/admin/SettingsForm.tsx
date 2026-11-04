@@ -1,4 +1,5 @@
 "use client";
+import { useUnsavedGuard } from "./UnsavedGuard";
 import { useActionState, useState } from "react";
 import type { SField } from "@/admin/settings-schema";
 import type { SettingsKey } from "@/lib/settings";
@@ -10,11 +11,12 @@ type Obj = Record<string, unknown>;
 
 export function SettingsForm({ group, fields, initial }: { group: SettingsKey; fields: SField[]; initial: Obj }) {
   const [state, action] = useActionState(saveSettingsAction.bind(null, group), null);
+  const guard = useUnsavedGuard();
   const [v, setV] = useState<Obj>(initial);
   const set = (k: string, val: unknown) => setV((s) => ({ ...s, [k]: val }));
 
   return (
-    <form action={action} className="space-y-6">
+    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={action} className="space-y-6">
       <input type="hidden" name="json" value={JSON.stringify(v)} />
       <div className="admin-card space-y-5 p-6">
         {fields.map((f) => (
@@ -23,18 +25,18 @@ export function SettingsForm({ group, fields, initial }: { group: SettingsKey; f
             {f.type === "boolean" ? (
               <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" checked={!!v[f.key]} onChange={(e) => set(f.key, e.target.checked)} className="h-4 w-4 accent-forest" /> {f.label}</label>
             ) : (
-              <label className="admin-label">{f.label}</label>
+              <label className="admin-label" htmlFor={`s-${f.key}`}>{f.label}</label>
             )}
-            {f.type === "text" && <input value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} className="admin-input" />}
-            {f.type === "textarea" && <textarea value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} rows={4} className="admin-input" />}
-            {f.type === "number" && <input type="number" value={String(v[f.key] ?? 0)} onChange={(e) => set(f.key, e.target.value === "" ? 0 : Number(e.target.value))} className="admin-input !w-48" />}
+            {f.type === "text" && <input id={`s-${f.key}`} value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} className="admin-input" />}
+            {f.type === "textarea" && <textarea id={`s-${f.key}`} value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} rows={4} className="admin-input" />}
+            {f.type === "number" && <input id={`s-${f.key}`} type="number" value={String(v[f.key] ?? 0)} onChange={(e) => set(f.key, e.target.value === "" ? 0 : Number(e.target.value))} className="admin-input !w-48" />}
             {f.type === "select" && (
-              <select value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} className="admin-input !w-72">
+              <select id={`s-${f.key}`} value={String(v[f.key] ?? "")} onChange={(e) => set(f.key, e.target.value)} className="admin-input !w-72">
                 {f.options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
               </select>
             )}
             {f.type === "tags" && (
-              <textarea value={((v[f.key] as string[]) ?? []).join(", ")} onChange={(e) => set(f.key, e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} rows={2} className="admin-input" />
+              <textarea id={`s-${f.key}`} value={((v[f.key] as string[]) ?? []).join(", ")} onChange={(e) => set(f.key, e.target.value.split(",").map((s) => s.trim()).filter(Boolean))} rows={2} className="admin-input" />
             )}
             {f.type === "image" && <ControlledImage value={String(v[f.key] ?? "")} onChange={(u) => set(f.key, u)} />}
             {f.type === "list" && <ListEditor items={(v[f.key] as Obj[]) ?? []} item={f.item} onChange={(items) => set(f.key, items)} />}
@@ -78,7 +80,7 @@ function ListEditor({ items, item, onChange }: { items: Obj[]; item: { key: stri
           <div className="grid gap-3 md:grid-cols-2">
             {item.map((sub) => (
               <div key={sub.key} className={sub.type === "textarea" ? "md:col-span-2" : ""}>
-                <label className="admin-label">{sub.label}</label>
+                <span className="admin-label">{sub.label}</span>
                 {sub.type === "text" && <input value={String(it[sub.key] ?? "")} onChange={(e) => upd(i, sub.key, e.target.value)} className="admin-input" />}
                 {sub.type === "textarea" && <textarea value={String(it[sub.key] ?? "")} onChange={(e) => upd(i, sub.key, e.target.value)} rows={2} className="admin-input" />}
                 {sub.type === "image" && <ControlledImage value={String(it[sub.key] ?? "")} onChange={(u) => upd(i, sub.key, u)} />}

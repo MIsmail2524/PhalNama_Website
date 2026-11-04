@@ -30,7 +30,7 @@ type Props = {
 
 export function CheckoutForm(props: Props) {
   const router = useRouter();
-  const { items, ready, clear } = useCart();
+  const { items, ready, clear, setOpen } = useCart();
   const [f, setF] = useState({
     ...props.prefill,
     instructions: "",
@@ -279,7 +279,7 @@ export function CheckoutForm(props: Props) {
       {/* Summary */}
       <aside className="lg:col-span-5">
         <div className="border border-sand-300 bg-white/70 p-6 lg:sticky lg:top-24 sm:p-8">
-          <h2 className="font-display text-2xl text-forest">Order summary</h2>
+          <div className="flex items-baseline justify-between"><h2 className="font-display text-2xl text-forest">Order summary</h2><button type="button" onClick={() => setOpen(true)} className="text-xs font-semibold uppercase tracking-[0.14em] text-forest underline underline-offset-4">Edit bag</button></div>
           <ul className="mt-6 divide-y divide-sand-300">
             {items.map((i) => {
               const line = q?.lines.find((l) => l.variantId === i.variantId);

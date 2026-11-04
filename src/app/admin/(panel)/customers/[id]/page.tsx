@@ -66,9 +66,9 @@ export default async function CustomerDetail({ params }: { params: Promise<{ id:
               </tbody>
             </table>
             <form action={adjustRewardsAction.bind(null, id)} className="mt-4 flex flex-wrap items-end gap-3 border-t border-sand-300 pt-4">
-              <div><label className="admin-label">Amount (+/−)</label><input name="amount" type="number" className="admin-input !w-28" required /></div>
-              <div><label className="admin-label">Expires in (days)</label><input name="expiryDays" type="number" defaultValue={180} className="admin-input !w-24" /></div>
-              <div className="flex-1"><label className="admin-label">Reason</label><input name="note" required className="admin-input" placeholder="Goodwill for late delivery" /></div>
+              <label className="block"><span className="admin-label">Amount (+/−)</span><input name="amount" type="number" className="admin-input !w-28" required /></label>
+              <label className="block"><span className="admin-label">Expires in (days)</span><input name="expiryDays" type="number" defaultValue={180} className="admin-input !w-24" /></label>
+              <label className="block flex-1"><span className="admin-label">Reason</span><input name="note" required className="admin-input" placeholder="Goodwill for late delivery" /></label>
               <SubmitButton className="admin-btn-secondary">Adjust credit</SubmitButton>
             </form>
           </Card>
