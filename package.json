@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test tests/*.test.ts",
+    "test": "tsx --test tests/pricing.test.ts tests/phone.test.ts",
     "db:local": "node scripts/local-db.mjs",
     "db:up": "docker compose up -d db",
     "db:migrate": "prisma migrate dev",
@@ -16,7 +16,8 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "admin:create": "tsx --env-file=.env scripts/create-admin.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test:integration": "tsx --conditions=react-server --env-file=.env --test --test-concurrency=1 tests/flow.integration.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
