@@ -1,5 +1,5 @@
 "use client";
-import { useActionState } from "react";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { clsx } from "clsx";
 import { contactAction, corporateAction, type FormState } from "@/app/actions/public";
 
@@ -23,10 +23,10 @@ function Done({ message }: { message: string }) {
 }
 
 export function ContactForm() {
-  const [state, action, pending] = useActionState<FormState, FormData>(contactAction, null);
+  const [state, action, pending] = useActionForm(contactAction, null);
   if (state?.ok) return <Done message={state.message} />;
   return (
-    <form action={action} className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={action} className="grid gap-5 sm:grid-cols-2">
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
       <F label="Name" name="name" required state={state} />
       <F label="Mobile" name="phone" type="tel" placeholder="0300 1234567" state={state} />
@@ -40,10 +40,10 @@ export function ContactForm() {
 }
 
 export function CorporateForm() {
-  const [state, action, pending] = useActionState<FormState, FormData>(corporateAction, null);
+  const [state, action, pending] = useActionForm(corporateAction, null);
   if (state?.ok) return <Done message={state.message} />;
   return (
-    <form action={action} className="grid gap-5 sm:grid-cols-2">
+    <form onSubmit={action} className="grid gap-5 sm:grid-cols-2">
       <input type="text" name="website" className="hidden" tabIndex={-1} autoComplete="off" aria-hidden />
       <F label="Organisation" name="organization" required state={state} wide />
       <F label="Contact person" name="name" required state={state} />

@@ -1,8 +1,9 @@
 "use client";
 import { useFormStatus } from "react-dom";
 
-export function SubmitButton({ children, className = "admin-btn", pendingText = "Saving…" }: { children: React.ReactNode; className?: string; pendingText?: string }) {
-  const { pending } = useFormStatus();
+export function SubmitButton({ children, className = "admin-btn", pendingText = "Saving…", pending: forced }: { children: React.ReactNode; className?: string; pendingText?: string; pending?: boolean }) {
+  const status = useFormStatus();
+  const pending = forced ?? status.pending;
   return <button className={className} disabled={pending}>{pending ? pendingText : children}</button>;
 }
 

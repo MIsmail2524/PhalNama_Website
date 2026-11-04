@@ -1,12 +1,12 @@
 "use client";
-import { useActionState } from "react";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { adminLoginAction } from "../(panel)/actions";
 import { SubmitButton } from "@/components/admin/SubmitButton";
 
 export function LoginForm() {
-  const [state, action] = useActionState(adminLoginAction, null);
+  const [state, action, pending] = useActionForm(adminLoginAction, null);
   return (
-    <form action={action} className="mt-8 space-y-4">
+    <form onSubmit={action} className="mt-8 space-y-4">
       <div>
         <label className="admin-label" htmlFor="email">Email</label>
         <input id="email" name="email" type="email" autoComplete="username" required className="admin-input" />
@@ -16,7 +16,7 @@ export function LoginForm() {
         <input id="password" name="password" type="password" autoComplete="current-password" required className="admin-input" />
       </div>
       {state?.message && <p className="text-sm text-danger" role="alert">{state.message}</p>}
-      <SubmitButton className="admin-btn w-full" pendingText="Signing in…">Sign in</SubmitButton>
+      <SubmitButton pending={pending} className="admin-btn w-full" pendingText="Signing in…">Sign in</SubmitButton>
     </form>
   );
 }

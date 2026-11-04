@@ -1,6 +1,7 @@
 "use client";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { useUnsavedGuard } from "./UnsavedGuard";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import type { Product, ProductVariant } from "@prisma/client";
 import { saveProductAction } from "@/app/admin/(panel)/actions";
 import { ImagesField } from "./ImageField";
@@ -50,13 +51,13 @@ export function ProductForm({ id, product, categories, origins }: {
   categories: { id: string; name: string; status: string }[];
   origins: { id: string; name: string }[];
 }) {
-  const [state, action] = useActionState(saveProductAction.bind(null, id), null);
+  const [state, action, pending] = useActionForm(saveProductAction.bind(null, id), null);
   const guard = useUnsavedGuard();
   const [variants, setVariants] = useState<V[]>(product?.variants.map(toV) ?? [blank(1)]);
   const upd = (i: number, patch: Partial<V>) => setVariants((vs) => vs.map((v, k) => (k === i ? { ...v, ...patch } : v)));
 
   return (
-    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={action} className="space-y-6">
+    <form onChange={guard.onChange} onSubmit={(e) => { guard.onSubmit(); action(e); }} className="space-y-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <input type="hidden" name="variants" value={JSON.stringify(variants.map((v) => ({ ...v, netWeightKg: v.netWeightKg || "0", stock: v.stock || "0" })))} />
 
@@ -145,7 +146,7 @@ export function ProductForm({ id, product, categories, origins }: {
       </Card>
 
       <div className="sticky bottom-0 flex gap-3 border-t border-sand-300 bg-[#f6f4ee]/95 py-4 backdrop-blur">
-        <SubmitButton>{id ? "Save product" : "Create product"}</SubmitButton>
+        <SubmitButton pending={pending}>{id ? "Save product" : "Create product"}</SubmitButton>
       </div>
     </form>
   );

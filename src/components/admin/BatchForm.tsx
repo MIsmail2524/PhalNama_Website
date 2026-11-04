@@ -1,6 +1,7 @@
 "use client";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { useUnsavedGuard } from "./UnsavedGuard";
-import { useActionState, useState } from "react";
+import { useState } from "react";
 import type { Batch } from "@prisma/client";
 import { saveBatchAction } from "@/app/admin/(panel)/actions";
 import { ImagesField } from "./ImageField";
@@ -15,12 +16,12 @@ export function BatchForm({ id, batch, products, origins }: {
   products: { id: string; name: string; originId: string | null; variants: { id: string; name: string; netWeightKg: number }[] }[];
   origins: { id: string; name: string }[];
 }) {
-  const [state, action] = useActionState(saveBatchAction.bind(null, id), null);
+  const [state, action, pending] = useActionForm(saveBatchAction.bind(null, id), null);
   const guard = useUnsavedGuard();
   const [productId, setProductId] = useState(batch?.productId ?? products[0]?.id ?? "");
   const product = products.find((p) => p.id === productId);
   return (
-    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={action} className="admin-card space-y-5 p-6">
+    <form onChange={guard.onChange} onSubmit={(e) => { guard.onSubmit(); action(e); }} className="admin-card space-y-5 p-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <div className="grid gap-5 md:grid-cols-2">
         <label className="block"><span className="admin-label">Batch code</span><input name="code" defaultValue={batch?.code} placeholder="Leave empty to generate" className="admin-input font-mono uppercase" /></label>
@@ -58,7 +59,7 @@ export function BatchForm({ id, batch, products, origins }: {
       <div><label className="admin-label">Packing photographs</label><ImagesField name="packingPhotos" defaultValue={batch?.packingPhotos ?? []} folder="batches" /></div>
       <label className="flex items-center gap-2 text-sm"><input type="checkbox" name="published" defaultChecked={batch?.published ?? true} className="accent-forest" /> Trace page visible to customers</label>
       <p className="text-xs text-stone">Only record information you actually have. Empty fields are simply not shown on the trace page.</p>
-      <SubmitButton>{id ? "Save batch" : "Create batch"}</SubmitButton>
+      <SubmitButton pending={pending}>{id ? "Save batch" : "Create batch"}</SubmitButton>
     </form>
   );
 }

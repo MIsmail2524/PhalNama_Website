@@ -1,6 +1,6 @@
 "use client";
+import { useActionForm } from "@/components/ui/useActionForm";
 import Link from "next/link";
-import { useActionState } from "react";
 import { clsx } from "clsx";
 import { loginAction, registerAction, requestResetAction, resetPasswordAction, updatePreferencesAction, submitReviewAction, type FormState } from "@/app/actions/public";
 
@@ -16,9 +16,9 @@ function Field({ label, name, type = "text", state, hint, defaultValue, autoComp
 }
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(loginAction, null);
+  const [state, action, pending] = useActionForm(loginAction, null);
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <input type="hidden" name="next" value={next} />
       <Field label="Mobile number or email" name="identifier" state={state} autoComplete="username" />
       <Field label="Password" name="password" type="password" state={state} autoComplete="current-password" />
@@ -30,10 +30,10 @@ export function LoginForm({ next }: { next: string }) {
 }
 
 export function RegisterForm({ next }: { next: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(registerAction, null);
+  const [state, action, pending] = useActionForm(registerAction, null);
   const needOrder = !!state?.fieldErrors?.orderNumber;
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <input type="hidden" name="next" value={next} />
       <Field label="Full name" name="name" state={state} autoComplete="name" />
       <Field label="Mobile number" name="phone" type="tel" state={state} autoComplete="tel" hint="Use the number you order with, so your past orders and passport stay together." />
@@ -49,10 +49,10 @@ export function RegisterForm({ next }: { next: string }) {
 }
 
 export function ForgotForm() {
-  const [state, action, pending] = useActionState<FormState, FormData>(requestResetAction, null);
+  const [state, action, pending] = useActionForm(requestResetAction, null);
   if (state?.ok) return <p className="text-forest" role="status">{state.message}</p>;
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <Field label="Mobile number or email" name="identifier" state={state} />
       {state && !state.ok && <p className="text-sm text-danger">{state.message}</p>}
       <button disabled={pending} className="btn-primary w-full">{pending ? "Sending…" : "Send reset link"}</button>
@@ -61,9 +61,9 @@ export function ForgotForm() {
 }
 
 export function ResetForm({ token }: { token: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(resetPasswordAction, null);
+  const [state, action, pending] = useActionForm(resetPasswordAction, null);
   return (
-    <form action={action} className="space-y-5">
+    <form onSubmit={action} className="space-y-5">
       <input type="hidden" name="token" value={token} />
       <Field label="New password" name="password" type="password" state={state} autoComplete="new-password" hint="At least 8 characters." />
       {state && !state.ok && <p className="text-sm text-danger">{state.message}</p>}
@@ -73,9 +73,9 @@ export function ResetForm({ token }: { token: string }) {
 }
 
 export function PreferencesForm({ consentEmail, consentWhatsapp, hasEmail, interests, categories }: { consentEmail: boolean; consentWhatsapp: boolean; hasEmail: boolean; interests: string[]; categories: { slug: string; name: string }[] }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(updatePreferencesAction, null);
+  const [state, action, pending] = useActionForm(updatePreferencesAction, null);
   return (
-    <form action={action} className="space-y-6">
+    <form onSubmit={action} className="space-y-6">
       <fieldset className="space-y-3">
         <legend className="field-label">How may we contact you about new harvests?</legend>
         <label className="flex items-center gap-2"><input type="checkbox" name="consentWhatsapp" defaultChecked={consentWhatsapp} className="accent-forest" /> WhatsApp</label>
@@ -95,10 +95,10 @@ export function PreferencesForm({ consentEmail, consentWhatsapp, hasEmail, inter
 }
 
 export function ReviewForm({ orderId }: { orderId: string }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(submitReviewAction, null);
+  const [state, action, pending] = useActionForm(submitReviewAction, null);
   if (state?.ok) return <p className="text-sm text-success">{state.message}</p>;
   return (
-    <form action={action} className="mt-3 space-y-3 border-t border-sand-300 pt-3">
+    <form onSubmit={action} className="mt-3 space-y-3 border-t border-sand-300 pt-3">
       <input type="hidden" name="orderId" value={orderId} />
       <div className="flex items-center gap-3 text-sm">
         <span className="text-stone">Your rating</span>

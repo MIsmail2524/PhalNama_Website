@@ -72,13 +72,13 @@ export default async function ProductPage({ params }: { params: Params }) {
         </nav>
 
         <div className="mt-8 grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-7">
+          <div className="min-w-0 lg:col-span-7">
             <div className="lg:sticky lg:top-24">
               <Gallery images={p.images} alt={p.name} />
             </div>
           </div>
 
-          <div className="lg:col-span-5">
+          <div className="min-w-0 lg:col-span-5">
             <p className="eyebrow">{p.origin ? `${p.origin.name}, ${p.origin.region}, Pakistan` : p.category.name}</p>
             <div className="mt-3 flex items-start justify-between gap-4">
               <h1 className="display-md text-forest sm:text-5xl">{p.name}</h1>

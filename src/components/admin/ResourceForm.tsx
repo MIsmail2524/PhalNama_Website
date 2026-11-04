@@ -1,6 +1,6 @@
 "use client";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { useUnsavedGuard } from "./UnsavedGuard";
-import { useActionState } from "react";
 import { clsx } from "clsx";
 import type { Field } from "@/admin/fields";
 import { saveResourceAction, type AdminFormState } from "@/admin/actions";
@@ -29,12 +29,12 @@ export function ResourceForm({ resourceKey, id, fields, row, relationOptions, de
   defaults?: Record<string, unknown>;
 }) {
   const action = saveResourceAction.bind(null, resourceKey, id);
-  const [state, formAction] = useActionState<AdminFormState, FormData>(action, null);
+  const [state, formAction, pending] = useActionForm(action, null);
   const guard = useUnsavedGuard();
   const val = (f: Field) => (row ? row[f.name] : defaults?.[f.name]);
 
   return (
-    <form onChange={guard.onChange} onSubmit={guard.onSubmit} action={formAction} className="space-y-6">
+    <form onChange={guard.onChange} onSubmit={(e) => { guard.onSubmit(); formAction(e); }} className="space-y-6">
       {state && !state.ok && <p className="rounded border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-danger">{state.message}</p>}
       <div className="grid gap-5 md:grid-cols-2">
         {fields.map((f) => {
@@ -55,7 +55,7 @@ export function ResourceForm({ resourceKey, id, fields, row, relationOptions, de
         })}
       </div>
       <div className="sticky bottom-0 -mx-6 flex items-center gap-3 border-t border-sand-300 bg-white/95 px-6 py-4 backdrop-blur">
-        <SubmitButton>{id ? "Save changes" : "Create"}</SubmitButton>
+        <SubmitButton pending={pending}>{id ? "Save changes" : "Create"}</SubmitButton>
       </div>
     </form>
   );

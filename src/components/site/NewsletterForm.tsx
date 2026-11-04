@@ -1,16 +1,16 @@
 "use client";
-import { useActionState } from "react";
+import { useActionForm } from "@/components/ui/useActionForm";
 import { clsx } from "clsx";
 import { subscribeAction, type FormState } from "@/app/actions/public";
 
 export function NewsletterForm({ tone = "light", source, compact, interests }: { tone?: "light" | "dark"; source: string; compact?: boolean; interests?: string[] }) {
-  const [state, action, pending] = useActionState<FormState, FormData>(subscribeAction, null);
+  const [state, action, pending] = useActionForm(subscribeAction, null);
   const dark = tone === "dark";
   if (state?.ok) {
     return <p className={clsx("mt-4 text-sm", dark ? "text-ivory" : "text-forest")} role="status">{state.message}</p>;
   }
   return (
-    <form action={action} className="mt-4 space-y-3">
+    <form onSubmit={action} className="mt-4 space-y-3">
       <input type="hidden" name="source" value={source} />
       {interests?.map((i) => <input key={i} type="hidden" name="interests" value={i} />)}
       <div className={clsx("flex", compact ? "flex-row" : "flex-col gap-3 sm:flex-row sm:gap-0")}>
