@@ -47,7 +47,7 @@ export default async function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-r from-forest-950/70 to-transparent" />
         <div className="container-x relative pb-20 pt-40 sm:pb-28">
           <div className="max-w-3xl animate-rise">
-            {home.heroEyebrow && <p className="eyebrow !text-gold">{home.heroEyebrow}</p>}
+            {home.heroEyebrow && <p className="eyebrow !text-gold-300">{home.heroEyebrow}</p>}
             <h1 className="display-xl mt-5 text-ivory">{home.heroHeadline}</h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">{home.heroSubtext}</p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -59,7 +59,7 @@ export default async function HomePage() {
             <Link href="/credits" className="absolute bottom-3 left-5 text-[10px] uppercase tracking-[0.14em] text-ivory/50 hover:text-ivory sm:left-8 lg:left-12">Representative photography</Link>
           )}
           {brand.showTagline && brand.tagline && (
-            <p className="absolute bottom-8 right-8 hidden font-display text-lg italic text-gold lg:block">{brand.tagline}</p>
+            <p className="absolute bottom-8 right-8 hidden font-display text-lg italic text-gold-300 lg:block">{brand.tagline}</p>
           )}
         </div>
       </section>
@@ -136,16 +136,16 @@ export default async function HomePage() {
       <section className="bg-forest py-24 text-ivory sm:py-32" aria-labelledby="journey-h">
         <div className="container-x">
           <div className="max-w-2xl">
-            <p className="eyebrow !text-gold">Orchard to home</p>
+            <p className="eyebrow !text-gold-300">Orchard to home</p>
             <h2 id="journey-h" className="display-lg mt-4">{home.journeyHeading}</h2>
             <p className="mt-6 text-lg leading-relaxed text-ivory/75">{home.journeyIntro}</p>
           </div>
         </div>
-        <ol className="no-scrollbar mt-16 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 sm:px-8 lg:px-[max(3rem,calc((100vw-1320px)/2+3rem))]">
+        <ol tabIndex={0} aria-label="From orchard to home, step by step" className="no-scrollbar mt-16 flex snap-x snap-mandatory gap-6 overflow-x-auto px-5 pb-4 sm:px-8 lg:px-[max(3rem,calc((100vw-1320px)/2+3rem))]">
           {home.journeySteps.map((s, i) => (
             <li key={i} className="w-[78vw] max-w-[340px] shrink-0 snap-start">
               <SmartImage src={s.image} alt={s.title} className="aspect-[3/4] w-full" sizes="340px" variant={i % 2 ? "day" : "dawn"} seed={i * 13 + 5} />
-              <p className="mt-6 font-display text-5xl text-gold/70">{String(i + 1).padStart(2, "0")}</p>
+              <p className="mt-6 font-display text-5xl text-gold-300">{String(i + 1).padStart(2, "0")}</p>
               <h3 className="mt-2 font-display text-2xl">{s.title}</h3>
               <p className="mt-3 text-[15px] leading-relaxed text-ivory/70">{s.body}</p>
             </li>
@@ -171,12 +171,12 @@ export default async function HomePage() {
             {home.differencePoints.map((d, i) => {
               const Icon = DIFF_ICONS[i % DIFF_ICONS.length];
               return (
-                <Reveal key={i} delay={i * 60}>
-                  <li className="list-none">
+                <Reveal key={i} delay={i * 60} as="li">
+                  <div>
                     <Icon className="h-7 w-7 text-citrus" />
                     <h3 className="mt-5 font-display text-2xl text-forest">{d.title}</h3>
                     <p className="mt-2 leading-relaxed text-stone">{d.body}</p>
-                  </li>
+                  </div>
                 </Reveal>
               );
             })}
@@ -285,7 +285,7 @@ export default async function HomePage() {
       <section className="relative overflow-hidden bg-forest-900 py-24 text-ivory sm:py-28" aria-labelledby="nl-h">
         <OrchardScene variant="dusk" className="absolute inset-0 h-full w-full opacity-25" seed={4} label="" />
         <div className="container-x relative max-w-2xl text-center">
-          <p className="eyebrow !text-gold">Seasonal updates</p>
+          <p className="eyebrow !text-gold-300">Seasonal updates</p>
           <h2 id="nl-h" className="display-md mt-4">{home.newsletterHeading}</h2>
           <p className="mx-auto mt-4 max-w-lg text-ivory/70">{home.newsletterBody}</p>
           <div className="mx-auto max-w-lg text-left">

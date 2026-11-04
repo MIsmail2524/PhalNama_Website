@@ -19,7 +19,7 @@ export default async function ReferralWelcome({ params }: { params: Promise<{ co
       <OrchardScene variant="dusk" className="absolute inset-0 h-full w-full opacity-60" seed={8} label="" />
       <div className="absolute inset-0 bg-forest-950/60" />
       <div className="container-x relative max-w-2xl py-32 text-center">
-        <p className="eyebrow !text-gold">{s.campaignName}</p>
+        <p className="eyebrow !text-gold-300">{s.campaignName}</p>
         <h1 className="display-lg mt-5">{referrer.name.split(" ")[0]} thought you would enjoy this.</h1>
         <p className="mt-6 text-lg leading-relaxed text-ivory/80">
           Carefully selected Kinnow from our orchards in Bhalwal, delivered to your home.

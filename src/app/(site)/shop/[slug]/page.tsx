@@ -153,7 +153,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           <div className="container-x grid gap-10 lg:grid-cols-2 lg:items-center">
             <SmartImage src={p.origin.heroImage} alt={`${p.origin.name} orchards`} className="aspect-[16/10] w-full" sizes="(min-width:1024px) 50vw, 100vw" variant="dawn" seed={31} />
             <div>
-              <p className="eyebrow !text-gold">The origin</p>
+              <p className="eyebrow !text-gold-300">The origin</p>
               <h2 className="display-md mt-4">{p.origin.name}, {p.origin.region}</h2>
               {p.origin.summary && <p className="mt-4 text-lg leading-relaxed text-ivory/75">{p.origin.summary}</p>}
               <Link href={`/orchards/${p.origin.slug}`} className="btn-ghost-light mt-8">Visit the orchard</Link>

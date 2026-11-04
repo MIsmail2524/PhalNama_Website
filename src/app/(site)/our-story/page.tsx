@@ -25,9 +25,9 @@ export default async function OurStory() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-forest-950 via-forest-950/50 to-forest-950/30" />
         <div className="container-x relative pb-16 pt-40">
-          <p className="eyebrow !text-gold">Our story</p>
+          <p className="eyebrow !text-gold-300">Our story</p>
           <h1 className="display-xl mt-4 max-w-3xl">{page.excerpt ?? page.title}</h1>
-          <p className="urdu mt-6 text-3xl text-gold" lang="ur">{brand.nameUrdu}</p>
+          <p className="urdu mt-6 text-3xl text-gold-300" lang="ur">{brand.nameUrdu}</p>
         </div>
       </header>
       <div className="container-x grid gap-12 py-20 lg:grid-cols-12">

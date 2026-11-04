@@ -51,17 +51,17 @@ export function Footer({ brand }: { brand: BrandSettings }) {
       <div className="container-x grid gap-14 py-20 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <Logo tone="light" name={brand.name} nameUrdu={brand.nameUrdu} />
-          {brand.showTagline && brand.tagline && <p className="mt-5 font-display text-xl italic text-gold">{brand.tagline}</p>}
+          {brand.showTagline && brand.tagline && <p className="mt-5 font-display text-xl italic text-gold-300">{brand.tagline}</p>}
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-ivory/70">{brand.description}</p>
           <div className="mt-8 max-w-sm">
-            <p className="eyebrow !text-gold">Seasonal updates</p>
+            <p className="eyebrow !text-gold-300">Seasonal updates</p>
             <NewsletterForm tone="dark" source="footer" compact />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-10 sm:grid-cols-3 lg:col-span-5">
           {cols.map((c) => (
             <div key={c.title}>
-              <h3 className="eyebrow !text-gold">{c.title}</h3>
+              <h3 className="eyebrow !text-gold-300">{c.title}</h3>
               <ul className="mt-5 space-y-3 text-sm">
                 {c.links.map((l) => (
                   <li key={l.href}><Link href={l.href} className="text-ivory/75 transition hover:text-ivory">{l.label}</Link></li>
@@ -71,7 +71,7 @@ export function Footer({ brand }: { brand: BrandSettings }) {
           ))}
         </div>
         <div className="lg:col-span-3">
-          <h3 className="eyebrow !text-gold">Contact</h3>
+          <h3 className="eyebrow !text-gold-300">Contact</h3>
           <address className="mt-5 space-y-3 text-sm not-italic text-ivory/75">
             {brand.address && <p>{brand.address}</p>}
             {brand.phone && <p><a href={`tel:${brand.phone}`} className="hover:text-ivory">{displayPkPhone(brand.phone) || brand.phone}</a></p>}
@@ -95,7 +95,7 @@ export function Footer({ brand }: { brand: BrandSettings }) {
             <CookieSettingsLink />
             <Link href="/credits" className="hover:text-ivory">Photo credits</Link>
             <Link href="/admin" className="hover:text-ivory" rel="nofollow">Team login</Link>
-            <span className="urdu text-gold/80" lang="ur">{brand.nameUrdu}</span>
+            <span className="urdu text-gold-300" lang="ur">{brand.nameUrdu}</span>
           </div>
         </div>
       </div>

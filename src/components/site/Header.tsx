@@ -120,7 +120,7 @@ export function Header({ brandName, brandUrdu, whatsappHref }: { brandName: stri
                 <IconWhatsApp /> Message us
               </a>
             )}
-            <p className="urdu px-6 pb-6 text-center text-gold" lang="ur">{brandUrdu}</p>
+            <p className="urdu px-6 pb-6 text-center text-gold-300" lang="ur">{brandUrdu}</p>
           </div>
         </div>
       )}

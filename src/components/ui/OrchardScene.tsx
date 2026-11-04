@@ -28,7 +28,7 @@ export function OrchardScene({ className, variant = "dawn", label, seed = 7 }: P
   ];
   const id = `sky-${variant}-${seed}`;
   return (
-    <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" className={className} role="img" aria-label={label ?? "Illustration of a citrus orchard"}>
+    <svg viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice" className={className} {...(label === "" ? { "aria-hidden": true } : { role: "img", "aria-label": label ?? "Illustration of a citrus orchard" })}>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={p.sky1} />

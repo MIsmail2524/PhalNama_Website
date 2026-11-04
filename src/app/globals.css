@@ -19,7 +19,10 @@
   --color-sand: #ede5d6;
   --color-sand-300: #dcd1bd;
   --color-gold: #b69a60;
-  --color-gold-700: #86703f;
+  /* text on dark green (AA ≥ 5.6:1) */
+  --color-gold-300: #c9b07a;
+  /* text on ivory / sand (AA ≥ 5.2:1) */
+  --color-gold-700: #6f5b30;
   --color-charcoal: #252923;
   --color-stone: #5b6058;
   --color-danger: #a33a2c;

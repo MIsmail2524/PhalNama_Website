@@ -74,8 +74,8 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
             </div>
             <form action={updateOrderStatusAction.bind(null, id)} className="mt-4 flex flex-wrap items-end gap-3">
               <div>
-                <label className="admin-label">Change status</label>
-                <select name="status" defaultValue={order.status} className="admin-input">
+                <label className="admin-label" htmlFor="order-status">Change status</label>
+                <select id="order-status" name="status" defaultValue={order.status} className="admin-input">
                   {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
@@ -128,8 +128,8 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               <Input name="courier" label="Courier" v={order.courier} />
               <Input name="trackingNumber" label="Tracking number" v={order.trackingNumber} />
               <div>
-                <label className="admin-label">Payment status</label>
-                <select name="paymentStatus" defaultValue={order.paymentStatus} className="admin-input">{PAYMENT.map((p) => <option key={p}>{p}</option>)}</select>
+                <label className="admin-label" htmlFor="payment-status">Payment status</label>
+                <select id="payment-status" name="paymentStatus" defaultValue={order.paymentStatus} className="admin-input">{PAYMENT.map((p) => <option key={p}>{p}</option>)}</select>
               </div>
               <Input name="paymentReference" label="Payment reference" v={order.paymentReference} />
               {order.isGift && (

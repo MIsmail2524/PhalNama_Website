@@ -43,7 +43,7 @@ export default async function TracePage({ params }: { params: Promise<{ code: st
       <div className="container-x max-w-2xl py-14">
         <div className="text-center">
           <LogoSymbol tone="light" className="mx-auto h-14 w-14" />
-          <p className="eyebrow mt-6 !text-gold">{brand.name} — your harvest</p>
+          <p className="eyebrow mt-6 !text-gold-300">{brand.name} — your harvest</p>
           <h1 className="display-md mt-3">{batch.product.name}</h1>
           {batch.origin && <p className="mt-2 text-ivory/70">From {batch.origin.location ?? `${batch.origin.name}, ${batch.origin.region}`}</p>}
         </div>

@@ -10,7 +10,7 @@ type Tone = "dark" | "light";
 
 const tones = {
   dark: { ink: "#173E30", fruit: "#D98232", leaf: "#173E30", rule: "#B69A60", text: "text-forest", sub: "text-gold-700" },
-  light: { ink: "#F8F5EC", fruit: "#D98232", leaf: "#F8F5EC", rule: "#B69A60", text: "text-ivory", sub: "text-gold" },
+  light: { ink: "#F8F5EC", fruit: "#D98232", leaf: "#F8F5EC", rule: "#B69A60", text: "text-ivory", sub: "text-gold-300" },
 };
 
 export function LogoSymbol({ tone = "dark", className, title }: { tone?: Tone; className?: string; title?: string }) {

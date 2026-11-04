@@ -25,21 +25,21 @@ export function BatchForm({ id, batch, products, origins }: {
       <div className="grid gap-5 md:grid-cols-2">
         <label className="block"><span className="admin-label">Batch code</span><input name="code" defaultValue={batch?.code} placeholder="Leave empty to generate" className="admin-input font-mono uppercase" /></label>
         <div>
-          <label className="admin-label">Product *</label>
-          <select name="productId" value={productId} onChange={(e) => setProductId(e.target.value)} className="admin-input">
+          <label className="admin-label" htmlFor="f-productId">Product *</label>
+          <select id="f-productId" name="productId" value={productId} onChange={(e) => setProductId(e.target.value)} className="admin-input">
             {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="admin-label">Pack</label>
-          <select name="variantId" defaultValue={batch?.variantId ?? ""} key={productId} className="admin-input">
+          <label className="admin-label" htmlFor="f-variantId">Pack</label>
+          <select id="f-variantId" name="variantId" defaultValue={batch?.variantId ?? ""} key={productId} className="admin-input">
             <option value="">Mixed / not specific</option>
             {product?.variants.map((v) => <option key={v.id} value={v.id}>{v.name}</option>)}
           </select>
         </div>
         <div>
-          <label className="admin-label">Origin</label>
-          <select name="originId" defaultValue={batch?.originId ?? product?.originId ?? ""} key={`o-${productId}`} className="admin-input">
+          <label className="admin-label" htmlFor="f-originId">Origin</label>
+          <select id="f-originId" name="originId" defaultValue={batch?.originId ?? product?.originId ?? ""} key={`o-${productId}`} className="admin-input">
             <option value="">—</option>
             {origins.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
           </select>

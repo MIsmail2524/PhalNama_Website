@@ -33,6 +33,8 @@ export type Field = {
   /** Field width in the form grid */
   wide?: boolean;
   readOnly?: boolean;
+  /** number/money: empty input stores null (otherwise the database default is kept) */
+  nullable?: boolean;
 };
 
 export type Column = { name: string; label: string; type?: "text" | "money" | "boolean" | "date" | "badge" | "relation" | "image"; path?: string };

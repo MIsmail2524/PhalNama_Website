@@ -25,7 +25,7 @@ function parseField(f: Field, form: FormData): { value?: unknown; error?: string
       return { value: form.get(f.name) === "on" };
     case "number":
     case "money": {
-      if (str === "") return f.required ? { error: "Required" } : { value: null };
+      if (str === "") return f.required ? { error: "Required" } : f.nullable ? { value: null } : { skip: true };
       const n = Number(str.replace(/,/g, ""));
       if (!Number.isFinite(n)) return { error: "Must be a number" };
       if (f.type === "money" && n < 0) return { error: "Cannot be negative" };

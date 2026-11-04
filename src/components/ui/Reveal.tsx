@@ -3,8 +3,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { clsx } from "clsx";
 
 /** Subtle rise-in when the element enters the viewport. */
-export function Reveal({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  const ref = useRef<HTMLDivElement>(null);
+export function Reveal({ children, className, delay = 0, as: Tag = "div" }: { children: ReactNode; className?: string; delay?: number; as?: "div" | "li" }) {
+  const ref = useRef<HTMLDivElement & HTMLLIElement>(null);
   const [shown, setShown] = useState(false);
   useEffect(() => {
     const el = ref.current;
@@ -22,12 +22,12 @@ export function Reveal({ children, className, delay = 0 }: { children: ReactNode
     return () => io.disconnect();
   }, []);
   return (
-    <div
+    <Tag
       ref={ref}
       className={clsx("transition-all duration-1000 ease-[cubic-bezier(.22,1,.36,1)]", shown ? "translate-y-0 opacity-100" : "translate-y-5 opacity-0", className)}
       style={{ transitionDelay: `${delay}ms` }}
     >
       {children}
-    </div>
+    </Tag>
   );
 }

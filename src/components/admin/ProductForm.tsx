@@ -65,21 +65,21 @@ export function ProductForm({ id, product, categories, origins }: {
           <label className="block"><span className="admin-label">Name *</span><input name="name" required defaultValue={product?.name} className="admin-input" /></label>
           <div><label className="admin-label">URL slug</label><SlugField name="slug" from="name" defaultValue={product?.slug} /></div>
           <div>
-            <label className="admin-label">Category *</label>
-            <select name="categoryId" defaultValue={product?.categoryId ?? categories[0]?.id} className="admin-input">
+            <label className="admin-label" htmlFor="f-categoryId">Category *</label>
+            <select id="f-categoryId" name="categoryId" defaultValue={product?.categoryId ?? categories[0]?.id} className="admin-input">
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}{c.status !== "ACTIVE" ? ` (${c.status.toLowerCase()})` : ""}</option>)}
             </select>
           </div>
           <div>
-            <label className="admin-label">Origin</label>
-            <select name="originId" defaultValue={product?.originId ?? ""} className="admin-input">
+            <label className="admin-label" htmlFor="f-originId">Origin</label>
+            <select id="f-originId" name="originId" defaultValue={product?.originId ?? ""} className="admin-input">
               <option value="">—</option>
               {origins.map((o) => <option key={o.id} value={o.id}>{o.name}</option>)}
             </select>
           </div>
           <div>
-            <label className="admin-label">Status</label>
-            <select name="status" defaultValue={product?.status ?? "DRAFT"} className="admin-input">
+            <label className="admin-label" htmlFor="f-status">Status</label>
+            <select id="f-status" name="status" defaultValue={product?.status ?? "DRAFT"} className="admin-input">
               <option value="DRAFT">Draft — hidden</option>
               <option value="ACTIVE">Active — on sale</option>
               <option value="UPCOMING">Upcoming — coming soon</option>

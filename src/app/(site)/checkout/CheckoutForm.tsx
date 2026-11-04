@@ -302,8 +302,8 @@ export function CheckoutForm(props: Props) {
           <div className="mt-4 space-y-3 border-t border-sand-300 pt-5">
             <div className="flex gap-2">
               <label className="sr-only" htmlFor="coupon">Coupon code</label>
-              <input id="coupon" className="input !py-2.5 uppercase" placeholder="Coupon code" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} />
-              {coupon ? (
+              <input id="coupon" className="input !py-2.5 uppercase" placeholder="Coupon code" value={couponInput} onChange={(e) => setCouponInput(e.target.value.toUpperCase())} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); setCoupon(couponInput.trim()); } }} />
+              {coupon && q?.coupon && q.coupon.code === couponInput.trim() ? (
                 <button type="button" className="btn-outline btn-sm" onClick={() => { setCoupon(""); setCouponInput(""); }}>Remove</button>
               ) : (
                 <button type="button" className="btn-outline btn-sm" onClick={() => setCoupon(couponInput.trim())} disabled={!couponInput.trim()}>Apply</button>

@@ -29,7 +29,7 @@ export default async function Gifts() {
       <section className="relative overflow-hidden bg-forest text-ivory">
         <div className="container-x grid items-center gap-12 py-20 lg:grid-cols-2 lg:py-28">
           <div>
-            <p className="eyebrow !text-gold">Gifting</p>
+            <p className="eyebrow !text-gold-300">Gifting</p>
             <h1 className="display-xl mt-4">A gift from the orchard.</h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-ivory/75">Seasonal fruit, carefully selected and beautifully packed, with your words on a card inside. For Eid, for family, for thanks — or for no reason at all.</p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -49,7 +49,7 @@ export default async function Gifts() {
           <ol className="grid gap-10 md:grid-cols-3">
             {steps.map((s, i) => (
               <li key={s.t} className="border-t border-gold pt-6">
-                <p className="font-display text-4xl text-gold">{String(i + 1).padStart(2, "0")}</p>
+                <p className="font-display text-4xl text-gold-700">{String(i + 1).padStart(2, "0")}</p>
                 <h2 className="mt-2 font-display text-2xl text-forest">{s.t}</h2>
                 <p className="mt-2 text-stone">{s.b}</p>
               </li>
