@@ -10,8 +10,12 @@ async function upload(file: File, folder: string) {
   return uploadImageAction(fd);
 }
 
-export function ImageField({ name, defaultValue, folder = "media" }: { name: string; defaultValue?: string | null; folder?: string }) {
-  const [url, setUrl] = useState(defaultValue ?? "");
+export function ImageField({ name, defaultValue, folder = "media", onChange }: { name: string; defaultValue?: string | null; folder?: string; onChange?: (url: string) => void }) {
+  const [url, setUrlState] = useState(defaultValue ?? "");
+  const setUrl = (u: string) => {
+    setUrlState(u);
+    onChange?.(u);
+  };
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const input = useRef<HTMLInputElement>(null);

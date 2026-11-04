@@ -1,0 +1,123 @@
+import type { SettingsKey } from "@/lib/settings";
+
+export type SField =
+  | { key: string; label: string; type: "text" | "textarea" | "number" | "boolean" | "image" | "tags"; help?: string; section?: string }
+  | { key: string; label: string; type: "list"; help?: string; section?: string; item: { key: string; label: string; type: "text" | "textarea" | "image" }[] }
+  | { key: string; label: string; type: "select"; options: { value: string; label: string }[]; help?: string; section?: string };
+
+export const SETTINGS_SCHEMA: Record<SettingsKey, { title: string; description: string; fields: SField[] }> = {
+  brand: {
+    title: "Brand & contact",
+    description: "Name, tagline and contact details used across the website, emails and footer.",
+    fields: [
+      { key: "name", label: "Brand name", type: "text" },
+      { key: "nameUrdu", label: "Urdu name", type: "text" },
+      { key: "tagline", label: "Tagline", type: "text", help: "Still being finalised? Untick 'Show tagline' to hide it everywhere." },
+      { key: "showTagline", label: "Show tagline", type: "boolean" },
+      { key: "description", label: "Short description (SEO & footer)", type: "textarea" },
+      { key: "whatsapp", label: "WhatsApp number", type: "text", help: "e.g. 03001234567 — used for the chat button and order messages.", section: "Contact" },
+      { key: "phone", label: "Phone", type: "text" },
+      { key: "email", label: "Email", type: "text" },
+      { key: "address", label: "Address", type: "textarea" },
+      { key: "supportHours", label: "Support hours", type: "text" },
+      { key: "instagram", label: "Instagram URL", type: "text", section: "Social" },
+      { key: "facebook", label: "Facebook URL", type: "text" },
+      { key: "tiktok", label: "TikTok URL", type: "text" },
+    ],
+  },
+  home: {
+    title: "Homepage",
+    description: "Edit every section of the homepage. Leave an image empty to show the illustrated placeholder.",
+    fields: [
+      { key: "heroEyebrow", label: "Small line above headline", type: "text", section: "Hero" },
+      { key: "heroHeadline", label: "Headline", type: "text" },
+      { key: "heroSubtext", label: "Supporting text", type: "textarea" },
+      { key: "heroImage", label: "Hero photograph", type: "image", help: "A wide orchard photograph, at least 2400px wide." },
+      { key: "heroPrimaryLabel", label: "Primary button label", type: "text" },
+      { key: "heroPrimaryHref", label: "Primary button link", type: "text" },
+      { key: "heroSecondaryLabel", label: "Secondary button label", type: "text" },
+      { key: "heroSecondaryHref", label: "Secondary button link", type: "text" },
+      { key: "harvestHeading", label: "Heading", type: "text", section: "Current harvest" },
+      { key: "harvestIntro", label: "Intro", type: "textarea" },
+      { key: "journeyHeading", label: "Heading", type: "text", section: "From our orchards" },
+      { key: "journeyIntro", label: "Intro", type: "textarea" },
+      { key: "journeySteps", label: "Journey steps", type: "list", item: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Text", type: "textarea" }, { key: "image", label: "Photo", type: "image" }] },
+      { key: "differenceHeading", label: "Heading", type: "text", section: "What makes us different" },
+      { key: "differencePoints", label: "Points", type: "list", item: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Text", type: "textarea" }] },
+      { key: "experienceHeading", label: "Heading", type: "text", section: "Packaging experience" },
+      { key: "experienceIntro", label: "Intro", type: "textarea" },
+      { key: "packaging", label: "Packaging formats", type: "list", item: [{ key: "title", label: "Title", type: "text" }, { key: "body", label: "Text", type: "textarea" }, { key: "image", label: "Image", type: "image" }] },
+      { key: "philosophyHeading", label: "Heading", type: "text", section: "Philosophy" },
+      { key: "philosophyBody", label: "Text (blank line = new paragraph)", type: "textarea" },
+      { key: "philosophyImage", label: "Photograph", type: "image" },
+      { key: "reviewsHeading", label: "Reviews heading", type: "text", section: "Other sections" },
+      { key: "journalHeading", label: "Journal heading", type: "text" },
+      { key: "newsletterHeading", label: "Newsletter heading", type: "text" },
+      { key: "newsletterBody", label: "Newsletter text", type: "textarea" },
+    ],
+  },
+  loyalty: {
+    title: "Loyalty — Harvest Passport",
+    description: "Customers collect chapters and rewards from delivered orders. All amounts are yours to set.",
+    fields: [
+      { key: "enabled", label: "Loyalty programme enabled", type: "boolean" },
+      { key: "programmeName", label: "Programme name", type: "text" },
+      { key: "ordersPerReward", label: "Qualifying delivered orders per reward", type: "number", help: "e.g. 3 = every third delivered order unlocks a reward." },
+      { key: "qualifyingMinSubtotal", label: "Minimum subtotal for an order to qualify (PKR)", type: "number" },
+      { key: "rewardAmount", label: "Reward credit per milestone (PKR)", type: "number", help: "0 = milestones are tracked but no credit is given yet." },
+      { key: "rewardExpiryDays", label: "Reward expires after (days)", type: "number", help: "0 = never." },
+      { key: "maxRedemptionPercent", label: "Max % of subtotal payable with credit", type: "number" },
+    ],
+  },
+  referral: {
+    title: "Referral programme",
+    description: "Two-sided rewards: a welcome discount for the friend, credit for the referrer after delivery.",
+    fields: [
+      { key: "enabled", label: "Referral programme enabled", type: "boolean" },
+      { key: "campaignName", label: "Campaign name", type: "text" },
+      { key: "headline", label: "Landing page headline", type: "text" },
+      { key: "body", label: "Landing page text", type: "textarea" },
+      { key: "refereeDiscountType", label: "Friend's discount type", type: "select", options: [{ value: "FIXED", label: "Fixed amount (PKR)" }, { value: "PERCENT", label: "Percentage" }], section: "Friend's welcome offer" },
+      { key: "refereeDiscountValue", label: "Friend's discount value", type: "number" },
+      { key: "refereeMaxDiscount", label: "Max friend's discount (PKR, 0 = no cap)", type: "number" },
+      { key: "minOrderSubtotal", label: "Minimum first-order subtotal (PKR)", type: "number" },
+      { key: "referrerReward", label: "Referrer credit (PKR)", type: "number", section: "Referrer reward" },
+      { key: "validationDays", label: "Days after delivery before credit is paid", type: "number" },
+      { key: "rewardExpiryDays", label: "Credit expires after (days, 0 = never)", type: "number" },
+      { key: "maxRewardsPerYear", label: "Max rewarded referrals per person per year (0 = unlimited)", type: "number" },
+    ],
+  },
+  payments: {
+    title: "Payment methods",
+    description: "Choose which payment options customers see. Online payments need a gateway integration (see docs/INTEGRATIONS.md).",
+    fields: [
+      { key: "codEnabled", label: "Cash on delivery", type: "boolean", section: "Cash on delivery" },
+      { key: "codNote", label: "Note shown at checkout", type: "text" },
+      { key: "bankEnabled", label: "Bank transfer", type: "boolean", section: "Bank transfer" },
+      { key: "bankInstructions", label: "Instructions", type: "textarea" },
+      { key: "bankAccounts", label: "Bank accounts", type: "list", item: [{ key: "bank", label: "Bank", type: "text" }, { key: "title", label: "Account title", type: "text" }, { key: "account", label: "Account number", type: "text" }, { key: "iban", label: "IBAN", type: "text" }] },
+      { key: "onlineEnabled", label: "Online payment", type: "boolean", section: "Online payment", help: "Only appears if a gateway is configured on the server." },
+      { key: "onlineLabel", label: "Label", type: "text" },
+    ],
+  },
+  checkout: {
+    title: "Checkout",
+    description: "Cities list, gifting options and order numbering.",
+    fields: [
+      { key: "allowGuestCheckout", label: "Allow checkout without an account", type: "boolean" },
+      { key: "cities", label: "Cities in the dropdown", type: "tags", help: "Comma-separated." },
+      { key: "giftPresentations", label: "Gift presentation options", type: "tags", help: "Comma-separated." },
+      { key: "giftMessageMaxLength", label: "Gift message max characters", type: "number" },
+      { key: "orderPrefix", label: "Order number prefix", type: "text" },
+    ],
+  },
+  tracking: {
+    title: "Analytics & SEO",
+    description: "Tracking only loads after visitors accept cookies.",
+    fields: [
+      { key: "googleAnalyticsId", label: "Google Analytics 4 ID", type: "text", help: "G-XXXXXXX" },
+      { key: "metaPixelId", label: "Meta Pixel ID", type: "text" },
+      { key: "googleSiteVerification", label: "Google Search Console verification code", type: "text" },
+    ],
+  },
+};
