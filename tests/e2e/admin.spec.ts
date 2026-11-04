@@ -1,16 +1,16 @@
 import { test, expect } from "@playwright/test";
 import { E2E } from "./global-setup";
-import { addKinnowToBag, adminLogin, fillCheckout, uniquePhone } from "./helpers";
+import { addKinnowToBag, adminLogin, alertBox, fillCheckout, uniquePhone } from "./helpers";
 
 test.describe("Admin journeys", () => {
   test("A1 admin portal is reachable from the footer and rejects a wrong password", async ({ page }) => {
     await page.goto("/");
     await page.getByRole("link", { name: "Team login" }).click();
     await expect(page).toHaveURL(/\/admin\/login/);
-    await page.getByLabel("Email").fill(E2E.adminEmail);
-    await page.getByLabel("Password").fill("not-the-password");
+    await page.getByLabel("Email", { exact: true }).fill(E2E.adminEmail);
+    await page.getByLabel("Password", { exact: true }).fill("not-the-password");
     await page.getByRole("button", { name: "Sign in" }).click();
-    await expect(page.getByRole("alert")).toContainText("incorrect");
+    await expect(alertBox(page)).toContainText("incorrect");
   });
 
   test("A2 order lifecycle: new order appears, status updated, note added, customer sees it", async ({ page, browser }) => {
@@ -43,14 +43,14 @@ test.describe("Admin journeys", () => {
     await adminLogin(page, E2E.adminEmail, E2E.adminPassword);
     const slug = `e2e-fruit-${Date.now()}`;
     await page.goto("/admin/r/categories/new");
-    await page.getByLabel(/^Name/).fill(`Test Fruit ${slug.slice(-4)}`);
+    await page.locator('input[name="name"]').fill(`Test Fruit ${slug.slice(-4)}`);
     await page.locator('input[name="slug"]').fill(slug);
-    await page.getByLabel("Status").selectOption("ACTIVE");
+    await page.locator('select[name="status"]').selectOption("ACTIVE");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(page).toHaveURL(/saved=1/);
 
     await page.goto("/admin/products/new");
-    await page.getByLabel(/^Name \*/).fill(`Test Product ${slug.slice(-4)}`);
+    await page.locator('input[name="name"]').fill(`Test Product ${slug.slice(-4)}`);
     await page.locator('input[name="slug"]').fill(`${slug}-p`);
     await page.locator('select[name="categoryId"]').selectOption({ label: `Test Fruit ${slug.slice(-4)}` });
     await page.locator('select[name="status"]').selectOption("ACTIVE");
@@ -69,7 +69,7 @@ test.describe("Admin journeys", () => {
     await adminLogin(page, E2E.adminEmail, E2E.adminPassword);
     await page.goto("/admin/settings/home");
     const headline = `Fresh from Bhalwal ${Date.now() % 1000}`;
-    await page.getByLabel("Headline").fill(headline);
+    await page.getByLabel("Headline", { exact: true }).fill(headline);
     await page.getByRole("button", { name: "Save settings" }).click();
     await expect(page.getByText("Saved.")).toBeVisible();
     await page.goto("/");
@@ -95,9 +95,9 @@ test.describe("Admin journeys", () => {
     await adminLogin(page, E2E.adminEmail, E2E.adminPassword);
     const code = `E2E${Date.now().toString(36).toUpperCase()}`;
     await page.goto("/admin/r/coupons/new");
-    await page.getByLabel(/^Code/).fill(code);
-    await page.getByLabel(/^Type/).selectOption("FIXED");
-    await page.getByLabel(/^Value/).fill("400");
+    await page.locator('input[name="code"]').fill(code);
+    await page.locator('select[name="type"]').selectOption("FIXED");
+    await page.locator('input[name="value"]').fill("400");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(page).toHaveURL(/saved=1/);
 

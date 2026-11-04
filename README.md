@@ -17,12 +17,28 @@ npm run dev                   # http://localhost:3000  ·  admin: /admin
 Add more admins: `npm run admin:create -- email@example.com "Name" MANAGER`
 (roles: OWNER, MANAGER, FULFILMENT, EDITOR).
 
+## Admin portal
+
+Open **`/admin`** (also linked as **Team login** in the site footer). Sign in with the account
+created by `npm run db:seed` (`SEED_ADMIN_EMAIL` / `SEED_ADMIN_PASSWORD` in `.env`) or `npm run admin:create`.
+
 ## Tests
 
 ```bash
-npm test                      # pricing + phone unit tests
-npm run test:integration      # order, stock, coupon, referral, loyalty flow (needs DB)
+npm test                      # unit: pricing, phone numbers, output-safety helpers
+npm run test:integration      # orders, stock, coupons, referrals, loyalty against a real DB
+npm run build && npm run test:e2e:db && npm run test:e2e   # Playwright journeys, security, mobile, accessibility
+npm run test:all              # everything above, in order
 ```
+
+GitHub Actions runs the full suite (audit, typecheck, lint, unit, integration, build, e2e) on every push.
+See `docs/JOURNEYS.md` for the journey maps and `docs/SECURITY.md` for the security review.
+
+## Photography
+
+Until your own orchard photos are uploaded, the site uses representative photographs from Unsplash
+(credited at `/credits` and labelled "Representative photo"). Replace them from the dashboard:
+product photos in **Products**, homepage photos in **Homepage**, orchard photos in **Orchards & origins**.
 
 ## Managing the business (all in /admin)
 

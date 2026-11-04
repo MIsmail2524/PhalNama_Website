@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { addKinnowToBag, fillCheckout, uniquePhone } from "./helpers";
+import { addKinnowToBag, alertBox, fillCheckout, uniquePhone } from "./helpers";
 
 test.describe("Customer journeys", () => {
   test("J1 discover → product → bag → COD checkout → confirmation → tracking", async ({ page }) => {
@@ -13,7 +13,7 @@ test.describe("Customer journeys", () => {
     await addKinnowToBag(page);
     const bag = page.getByRole("dialog", { name: /Your bag/ });
     await bag.getByRole("button", { name: "Increase quantity" }).click();
-    await expect(bag.getByText("Rs 5,000")).toBeVisible();
+    await expect(bag.getByText("Rs 5,000").first()).toBeVisible();
     await bag.getByRole("link", { name: "Checkout" }).click();
 
     const phone = uniquePhone();
@@ -39,7 +39,7 @@ test.describe("Customer journeys", () => {
     await fillCheckout(page, { phone: uniquePhone() });
     await page.getByLabel(/This is a gift/).check();
     await page.getByLabel("Recipient's name").fill("Amna");
-    await page.getByLabel("Your message").fill("Eid Mubarak from the orchards");
+    await page.getByLabel("Your message", { exact: false }).first().fill("Eid Mubarak from the orchards");
     await expect(page.getByLabel("Card preview")).toContainText("Dear Amna");
     await page.getByRole("button", { name: "Place order" }).click();
     await expect(page.getByText(/Your gift for Amna/)).toBeVisible();
@@ -79,9 +79,10 @@ test.describe("Customer journeys", () => {
   test("J6 register → account → passport → preferences → sign out → sign in", async ({ page }) => {
     const phone = uniquePhone();
     await page.goto("/account/register");
-    await page.getByLabel("Full name").fill("Passport Holder");
-    await page.getByLabel("Mobile number").fill(phone);
-    await page.getByLabel("Password").fill("orchard-pass-123");
+    const main = page.getByRole("main");
+    await main.getByLabel("Full name").fill("Passport Holder");
+    await main.getByLabel("Mobile number").fill(phone);
+    await main.getByLabel("Password", { exact: false }).fill("orchard-pass-123");
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(/\/account$/);
     await expect(page.getByRole("heading", { name: /Passport/ }).or(page.getByText("Assalam-o-Alaikum, Passport."))).toBeVisible();
@@ -91,7 +92,7 @@ test.describe("Customer journeys", () => {
     await expect(page.getByText("Bhalwal Kinnow")).toBeVisible();
 
     await page.goto("/account/preferences");
-    await page.getByLabel("WhatsApp").check();
+    await page.getByRole("main").getByLabel("WhatsApp", { exact: true }).check();
     await page.getByRole("button", { name: "Save preferences" }).click();
     await expect(page.getByText("Your preferences have been saved.")).toBeVisible();
 
@@ -99,10 +100,10 @@ test.describe("Customer journeys", () => {
     await page.getByRole("button", { name: "Sign out" }).click();
     await page.goto("/account/login");
     await page.getByLabel("Mobile number or email").fill(phone);
-    await page.getByLabel("Password").fill("wrong-password");
+    await page.getByLabel("Password", { exact: true }).fill("wrong-password");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page.getByText("do not match")).toBeVisible();
-    await page.getByLabel("Password").fill("orchard-pass-123");
+    await page.getByLabel("Password", { exact: true }).fill("orchard-pass-123");
     await page.getByRole("button", { name: "Sign in" }).click();
     await expect(page).toHaveURL(/\/account$/);
   });
@@ -111,9 +112,9 @@ test.describe("Customer journeys", () => {
     // Referrer creates an account to get a code.
     const phone = uniquePhone();
     await page.goto("/account/register");
-    await page.getByLabel("Full name").fill("Sana Referrer");
-    await page.getByLabel("Mobile number").fill(phone);
-    await page.getByLabel("Password").fill("orchard-pass-123");
+    await page.getByRole("main").getByLabel("Full name").fill("Sana Referrer");
+    await page.getByRole("main").getByLabel("Mobile number").fill(phone);
+    await page.getByRole("main").getByLabel("Password", { exact: false }).fill("orchard-pass-123");
     await page.getByRole("button", { name: "Create account" }).click();
     const code = (await page.getByText(/Your code:/).textContent())!.split(":")[1].trim();
 
@@ -149,18 +150,20 @@ test.describe("Customer journeys", () => {
     await expect(page.getByText(/We will write when the next harvest opens/)).toBeVisible();
 
     await page.goto("/contact");
-    await page.getByLabel(/^Name/).fill("Contact Tester");
-    await page.getByLabel(/^Email/).fill("contact@example.com");
-    await page.getByLabel(/^Message/).fill("Do you deliver to Hunza?");
+    const c = page.getByRole("main");
+    await c.getByLabel(/^Name/).fill("Contact Tester");
+    await c.getByLabel(/^Email/).fill("contact@example.com");
+    await c.getByLabel(/^Message/).fill("Do you deliver to Hunza?");
     await page.getByRole("button", { name: "Send message" }).click();
     await expect(page.getByText(/Thank you for writing to us/)).toBeVisible();
 
     await page.goto("/gifts#corporate");
-    await page.getByLabel(/^Organisation/).fill("Acme Pvt Ltd");
-    await page.getByLabel(/^Contact person/).fill("Ali");
-    await page.getByLabel(/^Mobile/).fill("03001234567");
-    await page.getByLabel(/^Email/).fill("ali@acme.example");
-    await page.getByLabel(/^Quantity required/).fill("100 boxes");
+    const g = page.locator("#corporate");
+    await g.getByLabel(/^Organisation/).fill("Acme Pvt Ltd");
+    await g.getByLabel(/^Contact person/).fill("Ali");
+    await g.getByLabel(/^Mobile/).fill("03001234567");
+    await g.getByLabel(/^Email/).fill("ali@acme.example");
+    await g.getByLabel(/^Quantity required/).fill("100 boxes");
     await page.getByRole("button", { name: "Request a proposal" }).click();
     await expect(page.getByText(/prepare|contact you to discuss/)).toBeVisible();
   });
@@ -193,7 +196,7 @@ test.describe("Customer journeys", () => {
 
   test("J12 track with wrong phone does not reveal the order", async ({ page }) => {
     await page.goto("/track?order=PN-0000-AAAAA&phone=03001234567");
-    await expect(page.getByRole("alert")).toContainText("could not find");
+    await expect(alertBox(page)).toContainText("could not find");
   });
 
   test("J13 upcoming fruit can be subscribed to", async ({ page }) => {

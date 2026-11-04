@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { E2E } from "./global-setup";
-import { adminLogin } from "./helpers";
+import { adminLogin, alertBox } from "./helpers";
 
 test.describe("Security", () => {
   test("S1 security headers are set", async ({ request }) => {
@@ -37,9 +37,10 @@ test.describe("Security", () => {
   test("S4 stored XSS payload in contact form is rendered as text in admin", async ({ page }) => {
     const payload = `<img src=x onerror="window.__xss=1"><script>window.__xss=1</script>`;
     await page.goto("/contact");
-    await page.getByLabel(/^Name/).fill("XSS Tester");
-    await page.getByLabel(/^Email/).fill("xss@example.com");
-    await page.getByLabel(/^Message/).fill(payload);
+    const m = page.getByRole("main");
+    await m.getByLabel(/^Name/).fill("XSS Tester");
+    await m.getByLabel(/^Email/).fill("xss@example.com");
+    await m.getByLabel(/^Message/).fill(payload);
     await page.getByRole("button", { name: "Send message" }).click();
     await expect(page.getByText(/Thank you for writing/)).toBeVisible();
 
@@ -53,7 +54,7 @@ test.describe("Security", () => {
   test("S5 javascript: links are refused in banners", async ({ page }) => {
     await adminLogin(page, E2E.adminEmail, E2E.adminPassword);
     await page.goto("/admin/r/banners/new");
-    await page.getByLabel(/^Message/).fill("Malicious banner");
+    await page.locator('input[name="message"]').fill("Malicious banner");
     await page.getByLabel("Link URL").fill("javascript:alert(document.cookie)");
     await page.getByRole("button", { name: "Create" }).click();
     await expect(page.getByText("Use a link starting with / or https://")).toBeVisible();
@@ -62,9 +63,10 @@ test.describe("Security", () => {
   test("S6 sign-in next parameter cannot redirect off-site", async ({ page }) => {
     const phone = "0300" + String(Date.now()).slice(-7);
     await page.goto("/account/register?next=//evil.example.com");
-    await page.getByLabel("Full name").fill("Redirect Tester");
-    await page.getByLabel("Mobile number").fill(phone);
-    await page.getByLabel("Password").fill("orchard-pass-123");
+    const m = page.getByRole("main");
+    await m.getByLabel("Full name").fill("Redirect Tester");
+    await m.getByLabel("Mobile number").fill(phone);
+    await m.getByLabel("Password", { exact: false }).fill("orchard-pass-123");
     await page.getByRole("button", { name: "Create account" }).click();
     await expect(page).toHaveURL(/localhost:3100\/account$/);
   });
@@ -85,12 +87,12 @@ test.describe("Security", () => {
   test("S8 admin login is rate limited", async ({ page }) => {
     await page.goto("/admin/login");
     for (let i = 0; i < 7; i++) {
-      await page.getByLabel("Email").fill("bruteforce@phalnama.test");
-      await page.getByLabel("Password").fill(`wrong-${i}`);
+      await page.getByLabel("Email", { exact: true }).fill("bruteforce@phalnama.test");
+      await page.getByLabel("Password", { exact: true }).fill(`wrong-${i}`);
       await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(page.getByRole("alert")).toBeVisible();
+      await expect(alertBox(page)).toBeVisible();
     }
-    await expect(page.getByRole("alert")).toContainText("Too many attempts");
+    await expect(alertBox(page)).toContainText("Too many attempts");
   });
 
   test("S9 SQL-injection style input is treated as data", async ({ page }) => {

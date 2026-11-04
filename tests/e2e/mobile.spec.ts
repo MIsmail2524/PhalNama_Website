@@ -10,6 +10,9 @@ test.describe("Mobile & accessibility", () => {
     });
   }
 
+  test.describe("phone only", () => {
+  test.skip(({ isMobile }) => !isMobile, "phone layout only");
+
   test("mobile menu opens, traps focus, closes with Escape and returns focus", async ({ page }) => {
     await page.goto("/");
     const opener = page.getByRole("button", { name: "Open menu" });
@@ -35,6 +38,8 @@ test.describe("Mobile & accessibility", () => {
       expect(box!.width).toBeGreaterThanOrEqual(44);
       expect(box!.height).toBeGreaterThanOrEqual(44);
     }
+  });
+
   });
 
   for (const path of ["/", "/shop", "/shop/bhalwal-kinnow", "/checkout", "/account/register", "/contact"]) {
