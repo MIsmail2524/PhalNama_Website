@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: phalnama
+          POSTGRES_PASSWORD: phalnama
+          POSTGRES_DB: phalnama
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U phalnama" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://phalnama:phalnama@localhost:5432/phalnama
+      E2E_DATABASE_URL: postgresql://phalnama:phalnama@localhost:5432/phalnama_test
+      AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only-secret-0123
+      NEXT_PUBLIC_SITE_URL: http://localhost:3100
+      SEED_ADMIN_EMAIL: ci-owner@phalnama.test
+      SEED_ADMIN_PASSWORD: ci-owner-password-123
+      NEXT_TELEMETRY_DISABLED: "1"
+      PW_CHANNEL: bundled
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: cp .env.example .env
+      - run: npm ci
+      - name: Dependency audit (production)
+        run: npm audit --omit=dev --audit-level=high
+      - name: Type check
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Unit tests
+        run: npm test
+      - name: Database migrate + seed
+        run: npx prisma migrate deploy && npx prisma db seed
+      - name: Integration tests (orders, stock, coupons, referrals, loyalty)
+        run: npm run test:integration
+      - name: Production build
+        run: npm run build
+      - name: Prepare e2e database
+        run: DATABASE_URL=$E2E_DATABASE_URL npx prisma migrate reset --force --skip-generate
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+      - name: End-to-end journeys, security and accessibility
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
