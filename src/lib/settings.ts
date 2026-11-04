@@ -42,7 +42,7 @@ export type HomeSettings = {
   experienceHeading: string;
   experienceIntro: string;
   experienceImage: string;
-  packaging: { title: string; body: string }[];
+  packaging: { title: string; body: string; image: string }[];
   philosophyHeading: string;
   philosophyBody: string;
   philosophyImage: string;
@@ -168,12 +168,12 @@ export const DEFAULT_SETTINGS: SettingsMap = {
     experienceHeading: "The Phalnama experience",
     experienceIntro:
       "Packaging is where the orchard meets your home. Each format is designed for how it will be used — on the family table, or as a gift.",
-    experienceImage: "/images/packaging/unboxing-system.png",
+    experienceImage: "/images/packaging/unboxing-system.jpg",
     packaging: [
-      { title: "Family carton", body: "Everyday freshness for the household — sturdy, ventilated and easy to carry." },
-      { title: "Signature carton", body: "Our larger flagship pack for families who go through fruit quickly." },
-      { title: "Orchard gift box", body: "A rigid presentation box with tissue, sleeve and ribbon — made to be given." },
-      { title: "Inside every box", body: "An orchard story card, a batch traceability card and, for gifts, your personal message." },
+      { title: "Family carton", body: "Everyday freshness for the household — sturdy, ventilated and easy to carry.", image: "/images/packaging/carton-5kg.jpg" },
+      { title: "Signature carton", body: "Our larger flagship pack for families who go through fruit quickly.", image: "/images/packaging/carton-10kg.jpg" },
+      { title: "Orchard gift box", body: "A rigid presentation box with tissue, sleeve and ribbon — made to be given.", image: "/images/packaging/gift-box.jpg" },
+      { title: "Inside every box", body: "An orchard story card, a batch traceability card and, for gifts, your personal message.", image: "/images/packaging/family-carton.jpg" },
     ],
     philosophyHeading: "Every fruit has a story.",
     philosophyBody:
