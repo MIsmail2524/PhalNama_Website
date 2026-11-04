@@ -1,0 +1,670 @@
+// Phalnama data model
+// Money is stored as whole PKR (Int). Weights in kilograms (Float).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Settings & content ────────────────────────────────────────────
+
+/// Key/value store for brand, homepage, loyalty, referral, payment and tracking settings.
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model Page {
+  id             String   @id @default(cuid())
+  slug           String   @unique
+  title          String
+  excerpt        String?
+  body           String   @db.Text
+  coverImage     String?
+  seoTitle       String?
+  seoDescription String?
+  published      Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Banner {
+  id        String    @id @default(cuid())
+  message   String
+  linkLabel String?
+  linkUrl   String?
+  active    Boolean   @default(false)
+  startsAt  DateTime?
+  endsAt    DateTime?
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Faq {
+  id        String   @id @default(cuid())
+  question  String
+  answer    String   @db.Text
+  group     String   @default("General")
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MediaAsset {
+  id            String   @id @default(cuid())
+  url           String
+  alt           String?
+  filename      String?
+  size          Int?
+  isPlaceholder Boolean  @default(false)
+  createdAt     DateTime @default(now())
+}
+
+model Article {
+  id              String        @id @default(cuid())
+  slug            String        @unique
+  title           String
+  excerpt         String?
+  body            String        @db.Text
+  coverImage      String?
+  category        String        @default("From the Orchards")
+  author          String        @default("The Phalnama Team")
+  status          PublishStatus @default(DRAFT)
+  publishedAt     DateTime?
+  seoTitle        String?
+  seoDescription  String?
+  relatedProducts Product[]     @relation("ArticleProducts")
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+// ─── Catalogue ─────────────────────────────────────────────────────
+
+enum CatalogueStatus {
+  ACTIVE
+  UPCOMING
+  HIDDEN
+}
+
+model Category {
+  id                String          @id @default(cuid())
+  slug              String          @unique
+  name              String
+  nameUrdu          String?
+  tagline           String?
+  description       String?         @db.Text
+  image             String?
+  season            String?
+  status            CatalogueStatus @default(UPCOMING)
+  /// Extra delivery charge per order containing this category (perishable handling etc.)
+  shippingSurcharge Int             @default(0)
+  sortOrder         Int             @default(0)
+  products          Product[]
+  chapters          PassportChapter[]
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+}
+
+model Origin {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  region      String
+  location    String?
+  varieties   String?
+  season      String?
+  summary     String?
+  story       String?   @db.Text
+  harvestInfo String?   @db.Text
+  heroImage   String?
+  images      String[]  @default([])
+  published   Boolean   @default(true)
+  sortOrder   Int       @default(0)
+  products    Product[]
+  batches     Batch[]
+  chapters    PassportChapter[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  UPCOMING
+  ARCHIVED
+}
+
+model Product {
+  id               String           @id @default(cuid())
+  slug             String           @unique
+  name             String
+  categoryId       String
+  category         Category         @relation(fields: [categoryId], references: [id])
+  originId         String?
+  origin           Origin?          @relation(fields: [originId], references: [id])
+  shortDescription String?
+  description      String?          @db.Text
+  selectionInfo    String?          @db.Text
+  deliveryInfo     String?          @db.Text
+  variationNote    String?          @db.Text
+  images           String[]         @default([])
+  status           ProductStatus    @default(DRAFT)
+  featured         Boolean          @default(false)
+  giftable         Boolean          @default(false)
+  seoTitle         String?
+  seoDescription   String?
+  sortOrder        Int              @default(0)
+  variants         ProductVariant[]
+  batches          Batch[]
+  orderItems       OrderItem[]
+  articles         Article[]        @relation("ArticleProducts")
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model ProductVariant {
+  id             String      @id @default(cuid())
+  productId      String
+  product        Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name           String
+  sku            String?     @unique
+  description    String?
+  netWeightKg    Float
+  /// null = price not yet published; variant cannot be purchased
+  price          Int?
+  compareAtPrice Int?
+  stock          Int         @default(0)
+  trackStock     Boolean     @default(true)
+  isGiftPack     Boolean     @default(false)
+  packaging      String?
+  active         Boolean     @default(true)
+  sortOrder      Int         @default(0)
+  orderItems     OrderItem[]
+  batches        Batch[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+// ─── Traceability ──────────────────────────────────────────────────
+
+model Batch {
+  id             String          @id @default(cuid())
+  code           String          @unique
+  productId      String
+  product        Product         @relation(fields: [productId], references: [id])
+  variantId      String?
+  variant        ProductVariant? @relation(fields: [variantId], references: [id])
+  originId       String?
+  origin         Origin?         @relation(fields: [originId], references: [id])
+  orchardBlock   String?
+  harvestDate    DateTime?
+  packingDate    DateTime?
+  quantityPacked Int?
+  netWeightKg    Float?
+  grade          String?
+  story          String?         @db.Text
+  qualityNotes   String?         @db.Text
+  harvestPhotos  String[]        @default([])
+  packingPhotos  String[]        @default([])
+  published      Boolean         @default(true)
+  scanCount      Int             @default(0)
+  orderItems     OrderItem[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+// ─── People ────────────────────────────────────────────────────────
+
+enum AdminRole {
+  OWNER
+  MANAGER
+  FULFILMENT
+  EDITOR
+}
+
+model AdminUser {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  role         AdminRole   @default(MANAGER)
+  active       Boolean     @default(true)
+  lastLoginAt  DateTime?
+  notes        OrderNote[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+model Customer {
+  id                String               @id @default(cuid())
+  name              String
+  /// Normalised Pakistani mobile, e.g. +923001234567
+  phone             String               @unique
+  email             String?              @unique
+  passwordHash      String?
+  referralCode      String               @unique
+  referredById      String?
+  referredBy        Customer?            @relation("CustomerReferrals", fields: [referredById], references: [id])
+  referredCustomers Customer[]           @relation("CustomerReferrals")
+  consentEmail      Boolean              @default(false)
+  consentWhatsapp   Boolean              @default(false)
+  consentUpdatedAt  DateTime?
+  interests         String[]             @default([])
+  notes             String?              @db.Text
+  blocked           Boolean              @default(false)
+  orders            Order[]
+  ledger            RewardEntry[]
+  referralsMade     Referral[]           @relation("Referrer")
+  referralReceived  Referral?            @relation("Referee")
+  chapters          CustomerChapter[]
+  resetTokens       PasswordResetToken[]
+  reviews           Review[]
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+}
+
+model PasswordResetToken {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+}
+
+// ─── Orders ────────────────────────────────────────────────────────
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PACKED
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentMethod {
+  COD
+  BANK_TRANSFER
+  ONLINE
+}
+
+enum PaymentStatus {
+  UNPAID
+  AWAITING_VERIFICATION
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Order {
+  id               String            @id @default(cuid())
+  number           String            @unique
+  customerId       String?
+  customer         Customer?         @relation(fields: [customerId], references: [id])
+  status           OrderStatus       @default(PENDING)
+  paymentMethod    PaymentMethod
+  paymentStatus    PaymentStatus     @default(UNPAID)
+  paymentReference String?
+  paymentProvider  String?
+  name             String
+  phone            String
+  email            String?
+  city             String
+  area             String?
+  address          String
+  postalCode       String?
+  instructions     String?
+  isGift           Boolean           @default(false)
+  recipientName    String?
+  recipientPhone   String?
+  senderName       String?
+  giftMessage      String?           @db.Text
+  giftPresentation String?
+  subtotal         Int
+  shippingFee      Int
+  discount         Int               @default(0)
+  referralDiscount Int               @default(0)
+  rewardCredit     Int               @default(0)
+  total            Int
+  totalWeightKg    Float             @default(0)
+  couponCode       String?
+  deliveryZoneId   String?
+  deliveryZone     DeliveryZone?     @relation(fields: [deliveryZoneId], references: [id])
+  courier          String?
+  trackingNumber   String?
+  source           String?
+  items            OrderItem[]
+  notes            OrderNote[]
+  events           OrderEvent[]
+  adjustments      OrderAdjustment[]
+  referral         Referral?
+  chapters         CustomerChapter[]
+  rewardEntries    RewardEntry[]
+  review           Review?
+  deliveredAt      DateTime?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([status])
+  @@index([phone])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id          String          @id @default(cuid())
+  orderId     String
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product         @relation(fields: [productId], references: [id])
+  variantId   String
+  variant     ProductVariant  @relation(fields: [variantId], references: [id])
+  productName String
+  variantName String
+  categoryId  String
+  unitPrice   Int
+  quantity    Int
+  weightKg    Float
+  batchId     String?
+  batch       Batch?          @relation(fields: [batchId], references: [id])
+}
+
+model OrderNote {
+  id        String     @id @default(cuid())
+  orderId   String
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  authorId  String?
+  author    AdminUser? @relation(fields: [authorId], references: [id])
+  body      String     @db.Text
+  createdAt DateTime   @default(now())
+}
+
+model OrderEvent {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      String
+  message   String
+  actor     String?
+  createdAt DateTime @default(now())
+}
+
+enum AdjustmentType {
+  REFUND
+  REPLACEMENT
+}
+
+enum AdjustmentStatus {
+  REQUESTED
+  APPROVED
+  COMPLETED
+  REJECTED
+}
+
+model OrderAdjustment {
+  id        String           @id @default(cuid())
+  orderId   String
+  order     Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  type      AdjustmentType
+  status    AdjustmentStatus @default(REQUESTED)
+  amount    Int              @default(0)
+  reason    String           @db.Text
+  resolution String?         @db.Text
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+}
+
+// ─── Shipping ──────────────────────────────────────────────────────
+
+model DeliveryZone {
+  id                    String   @id @default(cuid())
+  name                  String
+  /// Lower-case city names; an empty list on the default zone means "all other cities"
+  cities                String[] @default([])
+  isDefault             Boolean  @default(false)
+  baseFee               Int      @default(0)
+  includedWeightKg      Float    @default(0)
+  perKgFee              Int      @default(0)
+  freeShippingThreshold Int?
+  etaText               String?
+  codAvailable          Boolean  @default(true)
+  active                Boolean  @default(true)
+  sortOrder             Int      @default(0)
+  orders                Order[]
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+}
+
+// ─── Marketing ─────────────────────────────────────────────────────
+
+enum DiscountType {
+  PERCENT
+  FIXED
+}
+
+model Coupon {
+  id               String       @id @default(cuid())
+  code             String       @unique
+  description      String?
+  type             DiscountType @default(PERCENT)
+  value            Int
+  maxDiscount      Int?
+  minSubtotal      Int          @default(0)
+  maxUses          Int?
+  usedCount        Int          @default(0)
+  perCustomerLimit Int?
+  firstOrderOnly   Boolean      @default(false)
+  startsAt         DateTime?
+  endsAt           DateTime?
+  active           Boolean      @default(true)
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+enum ReferralStatus {
+  PENDING
+  QUALIFIED
+  REWARDED
+  REJECTED
+  EXPIRED
+}
+
+model Referral {
+  id               String         @id @default(cuid())
+  referrerId       String
+  referrer         Customer       @relation("Referrer", fields: [referrerId], references: [id])
+  refereeId        String         @unique
+  referee          Customer       @relation("Referee", fields: [refereeId], references: [id])
+  orderId          String?        @unique
+  order            Order?         @relation(fields: [orderId], references: [id])
+  status           ReferralStatus @default(PENDING)
+  refereeDiscount  Int            @default(0)
+  referrerReward   Int            @default(0)
+  eligibleAt       DateTime?
+  rewardedAt       DateTime?
+  reason           String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+}
+
+enum RewardType {
+  REFERRAL
+  LOYALTY
+  REDEMPTION
+  ADJUSTMENT
+  REVERSAL
+}
+
+model RewardEntry {
+  id         String     @id @default(cuid())
+  customerId String
+  customer   Customer   @relation(fields: [customerId], references: [id])
+  type       RewardType
+  /// Positive = credit, negative = debit
+  amount     Int
+  orderId    String?
+  order      Order?     @relation(fields: [orderId], references: [id])
+  note       String?
+  expiresAt  DateTime?
+  createdAt  DateTime   @default(now())
+}
+
+model PassportChapter {
+  id          String            @id @default(cuid())
+  number      Int               @unique
+  title       String
+  subtitle    String?
+  description String?           @db.Text
+  image       String?
+  season      String?
+  categoryId  String?
+  category    Category?         @relation(fields: [categoryId], references: [id])
+  originId    String?
+  origin      Origin?           @relation(fields: [originId], references: [id])
+  active      Boolean           @default(true)
+  customers   CustomerChapter[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+model CustomerChapter {
+  id         String          @id @default(cuid())
+  customerId String
+  customer   Customer        @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  chapterId  String
+  chapter    PassportChapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  orderId    String?
+  order      Order?          @relation(fields: [orderId], references: [id])
+  earnedAt   DateTime        @default(now())
+
+  @@unique([customerId, chapterId])
+}
+
+model LoyaltyTier {
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  minOrders      Int      @default(0)
+  minSpend       Int      @default(0)
+  benefits       String?  @db.Text
+  active         Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Subscriber {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String?   @unique
+  phone            String?   @unique
+  consentEmail     Boolean   @default(false)
+  consentWhatsapp  Boolean   @default(false)
+  interests        String[]  @default([])
+  source           String?
+  unsubscribeToken String    @unique
+  unsubscribedAt   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+enum CampaignStatus {
+  DRAFT
+  SENT
+}
+
+model Campaign {
+  id        String         @id @default(cuid())
+  name      String
+  channel   String         @default("email")
+  audience  String         @default("all")
+  subject   String?
+  body      String         @db.Text
+  status    CampaignStatus @default(DRAFT)
+  sentAt    DateTime?
+  sentCount Int            @default(0)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  orderId    String?  @unique
+  order      Order?   @relation(fields: [orderId], references: [id])
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+  name       String
+  city       String?
+  rating     Int
+  body       String   @db.Text
+  photos     String[] @default([])
+  approved   Boolean  @default(false)
+  featured   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum EnquiryType {
+  CONTACT
+  CORPORATE
+}
+
+model Enquiry {
+  id        String      @id @default(cuid())
+  type      EnquiryType
+  name      String
+  phone     String?
+  email     String?
+  subject   String?
+  message   String?     @db.Text
+  details   Json?
+  status    String      @default("NEW")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+// ─── Notifications ─────────────────────────────────────────────────
+
+model NotificationTemplate {
+  id        String   @id @default(cuid())
+  event     String
+  channel   String
+  subject   String?
+  body      String   @db.Text
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([event, channel])
+}
+
+model NotificationLog {
+  id        String   @id @default(cuid())
+  event     String
+  channel   String
+  recipient String
+  subject   String?
+  body      String   @db.Text
+  /// SENT | SKIPPED | FAILED | MANUAL
+  status    String
+  error     String?
+  orderId   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+}
