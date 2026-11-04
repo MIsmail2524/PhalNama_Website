@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const isProd = process.env.NODE_ENV === "production";
+// HTTPS-only protections are enabled when the site is served over https (always the case on Vercel).
+const isHttps = (process.env.NEXT_PUBLIC_SITE_URL ?? "").startsWith("https://");
 
 // Content Security Policy. Next.js needs inline scripts for hydration; everything else is locked to our origin
 // plus the analytics/pixel hosts that load only after cookie consent.
@@ -15,7 +17,7 @@ const csp = [
   "base-uri 'self'",
   "form-action 'self'",
   "object-src 'none'",
-  ...(isProd ? ["upgrade-insecure-requests"] : []),
+  ...(isHttps ? ["upgrade-insecure-requests"] : []),
 ].join("; ");
 
 const nextConfig: NextConfig = {
@@ -42,7 +44,7 @@ const nextConfig: NextConfig = {
           { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
           { key: "Content-Security-Policy", value: csp },
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
-          ...(isProd ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
+          ...(isHttps ? [{ key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" }] : []),
         ],
       },
     ];

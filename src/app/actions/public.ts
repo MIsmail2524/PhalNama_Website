@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { normalizePkPhone } from "@/lib/phone";
 import { randomToken, sha256 } from "@/lib/codes";
-import { rateLimit } from "@/lib/rate-limit";
+import { clearFailures, isLimited, rateLimit, recordFailure } from "@/lib/rate-limit";
 import { CheckoutError, generateReferralCode, placeOrder, quote, type CheckoutInput, type Quote, type QuoteInput } from "@/lib/orders";
 import { getCustomer, hashPassword, startCustomerSession, verifyPassword, endCustomerSession } from "@/lib/auth";
 import { activeGateway } from "@/lib/payments";
@@ -235,7 +235,9 @@ export async function registerAction(_: FormState, form: FormData): Promise<Form
 export async function loginAction(_: FormState, form: FormData): Promise<FormState> {
   const id = String(form.get("identifier") || "").trim();
   const password = String(form.get("password") || "");
-  if (!rateLimit(`login:${await ip()}`, 10, 10 * 60_000) || !rateLimit(`login-id:${id}`, 8, 10 * 60_000)) {
+  const W = 10 * 60_000;
+  const ipKey = `login:${await ip()}`;
+  if (isLimited(ipKey, 10, W) || isLimited(`login-id:${id}`, 8, W)) {
     return { ok: false, message: "Too many attempts. Please wait 10 minutes and try again." };
   }
   const phone = normalizePkPhone(id);
@@ -243,8 +245,11 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
     ? await prisma.customer.findUnique({ where: { phone } })
     : await prisma.customer.findUnique({ where: { email: id.toLowerCase() } });
   if (!customer?.passwordHash || customer.blocked || !(await verifyPassword(password, customer.passwordHash))) {
+    recordFailure(ipKey, W);
+    recordFailure(`login-id:${id}`, W);
     return { ok: false, message: "That number/email and password do not match." };
   }
+  clearFailures(`login-id:${id}`);
   await startCustomerSession(customer.id);
   redirect(safeNext(form.get("next")));
 }

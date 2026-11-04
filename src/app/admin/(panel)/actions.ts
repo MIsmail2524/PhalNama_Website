@@ -6,7 +6,7 @@ import { z } from "zod";
 import { Prisma, type AdminRole, type OrderStatus, type PaymentStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { endAdminSession, hashPassword, requireAdmin, startAdminSession, verifyPassword } from "@/lib/auth";
-import { rateLimit } from "@/lib/rate-limit";
+import { clearFailures, isLimited, recordFailure } from "@/lib/rate-limit";
 import { changeOrderStatus } from "@/lib/orders";
 import { processDueReferrals } from "@/lib/rewards";
 import { DEFAULT_SETTINGS, getSetting, saveSetting, type SettingsKey, type SettingsMap } from "@/lib/settings";
@@ -25,15 +25,20 @@ export async function adminLoginAction(_: State, form: FormData): Promise<State>
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0] ?? "local";
   const email = String(form.get("email") || "").trim().toLowerCase();
-  if (!rateLimit(`admin-login:${ip}`, 8, 15 * 60_000) || !rateLimit(`admin-login:${email}`, 6, 15 * 60_000)) {
+  const W = 15 * 60_000;
+  if (isLimited(`admin-login:${ip}`, 8, W) || isLimited(`admin-login:${email}`, 6, W)) {
     return { ok: false, message: "Too many attempts. Wait 15 minutes and try again." };
   }
   const admin = await prisma.adminUser.findUnique({ where: { email } });
   // Always run bcrypt so response time does not reveal whether the email exists.
   const hash = admin?.passwordHash ?? "$2b$12$AZzA3F9.Y6OO12DhFPjTG.gbBQzRg8dnn9CvcquL3R8Rro6GO3G6O";
   const passOk = await verifyPassword(String(form.get("password") || ""), hash);
-  const ok = admin && admin.active && passOk;
-  if (!ok) return { ok: false, message: "Email or password is incorrect." };
+  if (!admin || !admin.active || !passOk) {
+    recordFailure(`admin-login:${ip}`, W);
+    recordFailure(`admin-login:${email}`, W);
+    return { ok: false, message: "Email or password is incorrect." };
+  }
+  clearFailures(`admin-login:${email}`);
   await prisma.adminUser.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } });
   await startAdminSession(admin);
   redirect("/admin");
