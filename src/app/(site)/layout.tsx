@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/safe";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { CartProvider } from "@/components/shop/CartProvider";
@@ -35,7 +36,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <CartDrawer />
       {wa && <WhatsAppButton href={wa} />}
       <CookieConsent gaId={tracking.googleAnalyticsId || undefined} pixelId={tracking.metaPixelId || undefined} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(orgLd) }} />
     </CartProvider>
   );
 }

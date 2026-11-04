@@ -5,6 +5,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { slugify } from "@/lib/format";
+import { isAllowedImage, safeHref } from "@/lib/safe";
 import { storeImage } from "@/lib/storage";
 import { getResource } from "./resources";
 import type { Field } from "./fields";
@@ -36,8 +37,13 @@ function parseField(f: Field, form: FormData): { value?: unknown; error?: string
       const d = new Date(str);
       return Number.isNaN(d.getTime()) ? { error: "Invalid date" } : { value: d };
     }
-    case "images":
-      return { value: form.getAll(f.name).map(String).filter(Boolean) };
+    case "images": {
+      const list = form.getAll(f.name).map(String).filter(Boolean);
+      return list.every(isAllowedImage) ? { value: list } : { error: "Use uploaded images or an allowed image host." };
+    }
+    case "image":
+      if (!str) return { value: null };
+      return isAllowedImage(str) ? { value: str } : { error: "Use an uploaded image or an allowed image host." };
     case "tags": {
       const list = str.split(/[,\n]/).map((s) => s.trim()).filter(Boolean);
       return { value: f.lowercase ? list.map((s) => s.toLowerCase()) : list };
@@ -52,6 +58,7 @@ function parseField(f: Field, form: FormData): { value?: unknown; error?: string
       return { skip: true };
     default:
       if (!str) return f.required ? { error: "Required" } : { value: null };
+      if (/url$/i.test(f.name) && safeHref(str) === "#") return { error: "Use a link starting with / or https://" };
       return { value: str };
   }
 }

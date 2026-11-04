@@ -11,6 +11,7 @@ import { changeOrderStatus } from "@/lib/orders";
 import { processDueReferrals } from "@/lib/rewards";
 import { DEFAULT_SETTINGS, getSetting, saveSetting, type SettingsKey, type SettingsMap } from "@/lib/settings";
 import { slugify } from "@/lib/format";
+import { isAllowedImage } from "@/lib/safe";
 import { randomCode } from "@/lib/codes";
 import { notify } from "@/lib/notify";
 import { renderTemplate, type NotificationEvent, type Channel } from "@/lib/notify/templates";
@@ -28,7 +29,10 @@ export async function adminLoginAction(_: State, form: FormData): Promise<State>
     return { ok: false, message: "Too many attempts. Wait 15 minutes and try again." };
   }
   const admin = await prisma.adminUser.findUnique({ where: { email } });
-  const ok = admin && admin.active && (await verifyPassword(String(form.get("password") || ""), admin.passwordHash));
+  // Always run bcrypt so response time does not reveal whether the email exists.
+  const hash = admin?.passwordHash ?? "$2b$12$AZzA3F9.Y6OO12DhFPjTG.gbBQzRg8dnn9CvcquL3R8Rro6GO3G6O";
+  const passOk = await verifyPassword(String(form.get("password") || ""), hash);
+  const ok = admin && admin.active && passOk;
   if (!ok) return { ok: false, message: "Email or password is incorrect." };
   await prisma.adminUser.update({ where: { id: admin.id }, data: { lastLoginAt: new Date() } });
   await startAdminSession(admin);
@@ -191,7 +195,7 @@ export async function saveProductAction(id: string | null, _: State, form: FormD
     selectionInfo: s("selectionInfo") || null,
     deliveryInfo: s("deliveryInfo") || null,
     variationNote: s("variationNote") || null,
-    images: form.getAll("images").map(String).filter(Boolean),
+    images: form.getAll("images").map(String).filter(isAllowedImage),
     featured: form.get("featured") === "on",
     giftable: form.get("giftable") === "on",
     seoTitle: s("seoTitle") || null,
@@ -285,8 +289,8 @@ export async function saveBatchAction(id: string | null, _: State, form: FormDat
     grade: s("grade") || null,
     story: s("story") || null,
     qualityNotes: s("qualityNotes") || null,
-    harvestPhotos: form.getAll("harvestPhotos").map(String).filter(Boolean),
-    packingPhotos: form.getAll("packingPhotos").map(String).filter(Boolean),
+    harvestPhotos: form.getAll("harvestPhotos").map(String).filter(isAllowedImage),
+    packingPhotos: form.getAll("packingPhotos").map(String).filter(isAllowedImage),
     published: form.get("published") === "on",
   };
   const addToStock = form.get("addToStock") === "on" && !id && data.variantId && data.quantityPacked;

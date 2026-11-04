@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/safe";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { Markdown, renderMarkdown } from "@/components/ui/Markdown";
@@ -27,7 +28,7 @@ export default async function Faq() {
           </div>
         </section>
       ))}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </div>
   );
 }

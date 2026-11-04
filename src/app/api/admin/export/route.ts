@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getAdmin, can } from "@/lib/auth";
+import { csvCell } from "@/lib/safe";
 
 function csv(rows: (string | number | boolean | null | undefined | Date)[][]) {
   return rows
     .map((r) => r.map((v) => {
       const s = v instanceof Date ? v.toISOString() : v === null || v === undefined ? "" : String(v);
-      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      const c = csvCell(s);
+      return /[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c;
     }).join(","))
     .join("\n");
 }

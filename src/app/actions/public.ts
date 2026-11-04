@@ -113,6 +113,12 @@ export async function corporateAction(_: FormState, form: FormData): Promise<For
   return { ok: true, message: "Thank you. Our team will contact you to discuss your requirements." };
 }
 
+/** Only same-site paths may be used after sign-in (prevents open redirects like //evil.com or /\\evil.com). */
+function safeNext(v: FormDataEntryValue | null) {
+  const n = typeof v === "string" ? v : "";
+  return /^\/(?![\/\\])[^\s]*$/.test(n) ? n : "/account";
+}
+
 function flatten(err: z.ZodError) {
   const out: Record<string, string> = {};
   for (const i of err.issues) out[String(i.path[0])] ??= i.message;
@@ -122,6 +128,8 @@ function flatten(err: z.ZodError) {
 // ─── Checkout ───────────────────────────────────────────
 
 export async function quoteAction(input: QuoteInput): Promise<Quote | { error: string }> {
+  // Generous limit for live typing, but stops brute-forcing coupon / referral codes.
+  if (!rateLimit(`quote:${await ip()}`, 120, 10 * 60_000)) return { error: "Too many requests. Please wait a few minutes." };
   try {
     const c = await getCustomer();
     return await quote(input, c?.id ?? null);
@@ -221,7 +229,7 @@ export async function registerAction(_: FormState, form: FormData): Promise<Form
     customerId = created.id;
   }
   await startCustomerSession(customerId);
-  redirect(String(form.get("next") || "/account"));
+  redirect(safeNext(form.get("next")));
 }
 
 export async function loginAction(_: FormState, form: FormData): Promise<FormState> {
@@ -238,8 +246,7 @@ export async function loginAction(_: FormState, form: FormData): Promise<FormSta
     return { ok: false, message: "That number/email and password do not match." };
   }
   await startCustomerSession(customer.id);
-  const next = String(form.get("next") || "/account");
-  redirect(next.startsWith("/") && !next.startsWith("//") ? next : "/account");
+  redirect(safeNext(form.get("next")));
 }
 
 export async function logoutAction() {

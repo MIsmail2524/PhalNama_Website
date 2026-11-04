@@ -24,7 +24,7 @@ export default async function Customers({ searchParams }: { searchParams: Promis
   });
   return (
     <>
-      <PageHeader title="Customers" description="Everyone who has ordered or created an account." actions={<a href="/api/admin/export?resource=customers" className="admin-btn-secondary">Export CSV</a>} />
+      <PageHeader title="Customers" description="Everyone who has ordered or created an account." actions={<a href={"/api/admin/export?resource=customers"} download className="admin-btn-secondary">Export CSV</a>} />
       <div className="mb-4 flex flex-wrap gap-3">
         <form className="flex max-w-md flex-1 gap-2"><input name="q" defaultValue={sp.q} placeholder="Name, phone, email, referral code" className="admin-input" /><button className="admin-btn-secondary">Search</button></form>
         <div className="flex gap-2 text-xs font-semibold">

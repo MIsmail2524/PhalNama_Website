@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/safe";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -179,7 +180,7 @@ export default async function ProductPage({ params }: { params: Params }) {
           </div>
         </section>
       )}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </>
   );
 }

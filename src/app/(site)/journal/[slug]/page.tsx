@@ -1,3 +1,4 @@
+import { jsonLd } from "@/lib/safe";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -64,7 +65,7 @@ export default async function Article({ params }: { params: P }) {
           <div className="mt-10 grid gap-10 sm:grid-cols-2 lg:grid-cols-3">{a.relatedProducts.map((p) => <ProductCard key={p.id} product={p} />)}</div>
         </section>
       )}
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: jsonLd(ld) }} />
     </article>
   );
 }
