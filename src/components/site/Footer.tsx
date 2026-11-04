@@ -89,7 +89,7 @@ export function Footer({ brand }: { brand: BrandSettings }) {
         </div>
       </div>
       <div className="border-t border-ivory/10">
-        <div className="container-x flex flex-col gap-3 py-6 text-xs text-ivory/55 sm:flex-row sm:items-center sm:justify-between">
+        <div className="container-x flex flex-col gap-3 py-6 text-xs text-ivory/80 sm:flex-row sm:items-center sm:justify-between">
           <p>© {year} {brand.name}. Grown in Pakistan.</p>
           <div className="flex gap-5">
             <CookieSettingsLink />
