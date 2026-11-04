@@ -17,7 +17,7 @@ export async function fillCheckout(page: Page, o: { name?: string; phone: string
   const main = page.getByRole("main");
   await main.getByLabel("Full name").fill(o.name ?? "E2E Customer");
   await main.getByLabel("Mobile number").fill(o.phone);
-  await main.getByLabel("City", { exact: true }).selectOption(o.city ?? "Lahore");
+  await main.getByRole("combobox", { name: /^City/ }).selectOption(o.city ?? "Lahore");
   await main.getByLabel("Complete address").fill(o.address ?? `House ${o.phone.slice(-4)}, Street 9, Test Town`);
   // wait for the live server quote
   await expect(page.getByText(/^Rs [\d,]+$/).last()).toBeVisible();
@@ -29,4 +29,10 @@ export async function adminLogin(page: Page, email: string, password: string) {
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await page.waitForURL(/\/admin$/);
+}
+
+/** Waits for an admin save to redirect with ?saved=1, or fails showing the form's error message. */
+export async function expectSaved(page: Page) {
+  const err = page.locator("form .text-danger").first();
+  await expect.poll(async () => (page.url().includes("saved=1") ? "saved" : (await err.isVisible()) ? `error: ${await err.innerText()}` : "pending"), { timeout: 15_000 }).toBe("saved");
 }

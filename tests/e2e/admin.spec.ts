@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { E2E } from "./global-setup";
-import { addKinnowToBag, adminLogin, alertBox, fillCheckout, uniquePhone } from "./helpers";
+import { addKinnowToBag, adminLogin, alertBox, expectSaved, fillCheckout, uniquePhone } from "./helpers";
 
 test.describe("Admin journeys", () => {
   test("A1 admin portal is reachable from the footer and rejects a wrong password", async ({ page }) => {
@@ -47,7 +47,7 @@ test.describe("Admin journeys", () => {
     await page.locator('input[name="slug"]').fill(slug);
     await page.locator('select[name="status"]').selectOption("ACTIVE");
     await page.getByRole("button", { name: "Create" }).click();
-    await expect(page).toHaveURL(/saved=1/);
+    await expectSaved(page);
 
     await page.goto("/admin/products/new");
     await page.locator('input[name="name"]').fill(`Test Product ${slug.slice(-4)}`);
@@ -59,7 +59,7 @@ test.describe("Admin journeys", () => {
     await page.getByLabel(/^Price \(PKR\)/).fill("999");
     await page.getByLabel(/^Stock/).fill("5");
     await page.getByRole("button", { name: "Create product" }).click();
-    await expect(page).toHaveURL(/saved=1/);
+    await expectSaved(page);
 
     await page.goto(`/shop/${slug}-p`);
     await expect(page.getByRole("button", { name: /Add to bag · Rs 999/ })).toBeVisible();
@@ -99,7 +99,7 @@ test.describe("Admin journeys", () => {
     await page.locator('select[name="type"]').selectOption("FIXED");
     await page.locator('input[name="value"]').fill("400");
     await page.getByRole("button", { name: "Create" }).click();
-    await expect(page).toHaveURL(/saved=1/);
+    await expectSaved(page);
 
     const s = await browser.newPage();
     await addKinnowToBag(s);

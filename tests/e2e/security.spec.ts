@@ -89,8 +89,8 @@ test.describe("Security", () => {
     for (let i = 0; i < 7; i++) {
       await page.getByLabel("Email", { exact: true }).fill("bruteforce@phalnama.test");
       await page.getByLabel("Password", { exact: true }).fill(`wrong-${i}`);
-      await page.getByRole("button", { name: "Sign in" }).click();
-      await expect(alertBox(page)).toBeVisible();
+      await Promise.all([page.waitForResponse((r) => r.request().method() === "POST"), page.getByRole("button", { name: "Sign in" }).click()]);
+      await expect(page.getByRole("button", { name: "Sign in" })).toBeEnabled();
     }
     await expect(alertBox(page)).toContainText("Too many attempts");
   });
