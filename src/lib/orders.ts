@@ -78,6 +78,10 @@ export type Quote = {
 export async function quote(raw: QuoteInput, customerId?: string | null): Promise<Quote> {
   const input = quoteSchema.parse(raw);
   const errors: string[] = [];
+  // Merge duplicate lines so stock checks see the real total per pack.
+  const merged = new Map<string, number>();
+  for (const l of input.lines) merged.set(l.variantId, (merged.get(l.variantId) ?? 0) + l.quantity);
+  input.lines = [...merged].map(([variantId, quantity]) => ({ variantId, quantity }));
 
   const variants = await prisma.productVariant.findMany({
     where: { id: { in: input.lines.map((l) => l.variantId) } },
@@ -101,7 +105,7 @@ export async function quote(raw: QuoteInput, customerId?: string | null): Promis
         errors.push(`${v.product.name} — ${v.name} is sold out for now.`);
         continue;
       }
-      errors.push(`Only ${v.stock} of ${v.product.name} — ${v.name} remaining; quantity adjusted.`);
+      errors.push(`Only ${v.stock} of ${v.product.name} — ${v.name} remaining. Please reduce the quantity in your bag.`);
       qty = v.stock;
     }
     lines.push({
@@ -231,8 +235,15 @@ export async function placeOrder(raw: CheckoutInput, sessionCustomerId: string |
   if (!methods.includes(input.paymentMethod as PaymentMethod)) throw new CheckoutError("That payment method is not available.");
 
   const q = await quote(input, sessionCustomerId);
-  const blocking = q.errors.filter((e) => !e.includes("quantity adjusted"));
+  const blocking = q.errors;
   if (!q.lines.length) throw new CheckoutError(q.errors[0] ?? "Your bag is empty.");
+  // Never silently change what the customer asked for: unavailable or reduced lines block the order.
+  for (const l of input.lines) {
+    const priced = q.lines.find((x) => x.variantId === l.variantId);
+    if (!priced || priced.quantity !== l.quantity) {
+      throw new CheckoutError(q.errors.find((e) => e.includes("remaining") || e.includes("sold out") || e.includes("available")) ?? "Some items in your bag have changed. Please review it.");
+    }
+  }
   if (!q.zone) throw new CheckoutError(q.errors.find((e) => e.includes("deliver")) ?? "Please choose a delivery city.");
   if (input.couponCode && !q.coupon) throw new CheckoutError(blocking.find((e) => e.toLowerCase().includes("coupon")) ?? "Coupon could not be applied.");
   if (input.referralCode && !q.referral) throw new CheckoutError(blocking.find((e) => e.toLowerCase().includes("referr")) ?? "Referral could not be applied.");
