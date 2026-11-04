@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import type { Prisma } from "@prisma/client";
@@ -101,6 +102,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SP }) {
               <ul className="grid grid-cols-2 gap-px bg-sand-300 lg:col-span-6 lg:col-start-7">
                 {upcoming.map((c) => (
                   <li key={c.id} className="bg-ivory p-6">
+                    {c.image && <div className="relative mb-4 aspect-[4/3] overflow-hidden bg-sand"><Image src={c.image} alt={c.name} fill sizes="(min-width:1024px) 25vw, 50vw" className="object-cover saturate-[.85]" /></div>}
                     <p className="urdu text-lg text-gold-700" lang="ur">{c.nameUrdu}</p>
                     <p className="font-display text-2xl text-forest">{c.name}</p>
                     <p className="mt-1 text-xs uppercase tracking-[0.14em] text-stone">{c.season}</p>

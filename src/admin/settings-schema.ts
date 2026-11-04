@@ -33,6 +33,7 @@ export const SETTINGS_SCHEMA: Record<SettingsKey, { title: string; description: 
       { key: "heroHeadline", label: "Headline", type: "text" },
       { key: "heroSubtext", label: "Supporting text", type: "textarea" },
       { key: "heroImage", label: "Hero photograph", type: "image", help: "A wide orchard photograph, at least 2400px wide." },
+      { key: "heroGallery", label: "Extra hero photographs (slideshow)", type: "tags", help: "Comma-separated image URLs from the Media library. Leave empty for a single image." },
       { key: "heroPrimaryLabel", label: "Primary button label", type: "text" },
       { key: "heroPrimaryHref", label: "Primary button link", type: "text" },
       { key: "heroSecondaryLabel", label: "Secondary button label", type: "text" },

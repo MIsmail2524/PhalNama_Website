@@ -28,6 +28,8 @@ export type HomeSettings = {
   heroHeadline: string;
   heroSubtext: string;
   heroImage: string;
+  /** Extra hero photographs; the hero cross-fades between them */
+  heroGallery: string[];
   heroPrimaryLabel: string;
   heroPrimaryHref: string;
   heroSecondaryLabel: string;
@@ -140,7 +142,8 @@ export const DEFAULT_SETTINGS: SettingsMap = {
     heroHeadline: "Some stories begin in an orchard.",
     heroSubtext:
       "From the orchards of Bhalwal to the homes of those who appreciate the goodness of carefully selected fruit.",
-    heroImage: "",
+    heroImage: "/images/photos/tree-ripe-oranges.jpg",
+    heroGallery: ["/images/photos/orchard-three-oranges.jpg", "/images/photos/mandarin-tree-sky.jpg"],
     heroPrimaryLabel: "Explore the harvest",
     heroPrimaryHref: "/shop",
     heroSecondaryLabel: "Our story",
@@ -151,11 +154,11 @@ export const DEFAULT_SETTINGS: SettingsMap = {
     journeyHeading: "From our orchards",
     journeyIntro: "Every carton begins on a tree. Here is the path it takes before it reaches your table.",
     journeySteps: [
-      { title: "On the tree", body: "Kinnow ripens slowly through the Punjab winter, on trees tended season after season.", image: "" },
-      { title: "The harvest", body: "Fruit is picked by hand when it is ready, not before, and handled gently from branch to crate.", image: "" },
-      { title: "Selection", body: "Each lot is sorted and graded. Fruit that does not meet our selection does not go into a Phalnama carton.", image: "" },
-      { title: "Packing", body: "Selected fruit is packed into ventilated cartons, each carrying a batch code you can trace.", image: "" },
-      { title: "To your home", body: "Cartons leave the orchard and travel to homes across Pakistan, with updates along the way.", image: "" },
+      { title: "On the tree", body: "Kinnow ripens slowly through the Punjab winter, on trees tended season after season.", image: "/images/photos/oranges-branch.jpg" },
+      { title: "The harvest", body: "Fruit is picked by hand when it is ready, not before, and handled gently from branch to crate.", image: "/images/photos/basket-oranges.jpg" },
+      { title: "Selection", body: "Each lot is sorted and graded. Fruit that does not meet our selection does not go into a Phalnama carton.", image: "/images/photos/mandarins-closeup.jpg" },
+      { title: "Packing", body: "Selected fruit is packed into ventilated cartons, each carrying a batch code you can trace.", image: "/images/photos/crate-citrus.jpg" },
+      { title: "To your home", body: "Cartons leave the orchard and travel to homes across Pakistan, with updates along the way.", image: "/images/photos/hand-orange.jpg" },
     ],
     differenceHeading: "What makes Phalnama different",
     differencePoints: [
@@ -178,7 +181,7 @@ export const DEFAULT_SETTINGS: SettingsMap = {
     philosophyHeading: "Every fruit has a story.",
     philosophyBody:
       "Pakistan grows extraordinary fruit — Kinnow from the orchards of Sargodha, mangoes from Multan and Sindh, apples from the northern valleys, dates from Khairpur. Each one belongs to a place, a season and the families who grow it.\n\nPhalnama began in our own Kinnow orchards in Bhalwal with a simple idea: carefully selected fruit should be easy to bring home, and it should arrive with its story intact. We start with the fruit we know best, and we hope to bring you the harvests of other regions, one season at a time.",
-    philosophyImage: "",
+    philosophyImage: "/images/photos/tree-ripe-oranges-2.jpg",
     reviewsHeading: "From our customers",
     journalHeading: "The Harvest Journal",
     newsletterHeading: "Be the first to discover our next harvest.",

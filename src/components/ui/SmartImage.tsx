@@ -1,6 +1,20 @@
 import Image from "next/image";
 import { clsx } from "clsx";
 import { OrchardScene } from "./OrchardScene";
+import { isAllowedImage } from "@/lib/safe";
+
+/** Library photographs (not taken at our orchards) live under /images/photos/. */
+export function isRepresentative(src?: string | null) {
+  return !!src && src.startsWith("/images/photos/");
+}
+
+export function RepresentativeBadge() {
+  return (
+    <span className="pointer-events-none absolute bottom-2 left-2 rounded-sm bg-forest-950/55 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-[0.14em] text-ivory/90 backdrop-blur-sm">
+      Representative photo
+    </span>
+  );
+}
 
 /**
  * Renders an uploaded image, or an honest illustrated placeholder when the
@@ -27,10 +41,11 @@ export function SmartImage({
   seed?: number;
   fit?: "cover" | "contain";
 }) {
-  if (src) {
+  if (isAllowedImage(src)) {
     return (
       <div className={clsx("relative overflow-hidden bg-sand", className)}>
         <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className={fit === "cover" ? "object-cover" : "object-contain"} />
+        {isRepresentative(src) && placeholderLabel !== null && <RepresentativeBadge />}
       </div>
     );
   }

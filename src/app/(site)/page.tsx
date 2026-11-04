@@ -1,11 +1,13 @@
-import Link from "next/link";
+import { safeHref } from "@/lib/safe";
 import Image from "next/image";
+import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { getSetting } from "@/lib/settings";
 import { getFeaturedProducts, getCategories } from "@/lib/catalog";
 import { ProductCard } from "@/components/shop/ProductCard";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { OrchardScene } from "@/components/ui/OrchardScene";
+import { HeroSlides } from "@/components/ui/HeroSlides";
 import { Reveal } from "@/components/ui/Reveal";
 import { Paragraphs } from "@/components/ui/Markdown";
 import { NewsletterForm } from "@/components/site/NewsletterForm";
@@ -26,13 +28,18 @@ export default async function HomePage() {
     prisma.review.findMany({ where: { approved: true }, orderBy: [{ featured: "desc" }, { createdAt: "desc" }], take: 6 }),
   ]);
   const upcoming = categories.filter((c) => c.status === "UPCOMING");
+  const open = categories.filter((c) => c.status === "ACTIVE");
+  const [latestBatch, inStock] = await Promise.all([
+    prisma.batch.findFirst({ where: { published: true, packingDate: { not: null } }, orderBy: { packingDate: "desc" }, include: { origin: true } }),
+    prisma.productVariant.count({ where: { active: true, price: { not: null }, OR: [{ trackStock: false }, { stock: { gt: 0 } }], product: { status: "ACTIVE", category: { status: "ACTIVE" } } } }),
+  ]);
 
   return (
     <>
       {/* ── Hero ───────────────────────────────────────── */}
       <section className="relative -mt-[72px] flex min-h-[100svh] items-end overflow-hidden bg-forest-950 text-ivory">
         {home.heroImage ? (
-          <Image src={home.heroImage} alt="" fill priority sizes="100vw" className="object-cover" />
+          <HeroSlides images={[home.heroImage, ...(home.heroGallery ?? [])].filter(Boolean)} alt="Ripe citrus on the tree" />
         ) : (
           <OrchardScene variant="dusk" className="absolute inset-0 h-full w-full" seed={11} label="Illustration of a Kinnow orchard at sunset" />
         )}
@@ -44,15 +51,37 @@ export default async function HomePage() {
             <h1 className="display-xl mt-5 text-ivory">{home.heroHeadline}</h1>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-ivory/80 sm:text-lg">{home.heroSubtext}</p>
             <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Link href={home.heroPrimaryHref} className="btn-citrus">{home.heroPrimaryLabel}</Link>
-              <Link href={home.heroSecondaryHref} className="btn-ghost-light">{home.heroSecondaryLabel}</Link>
+              <Link href={safeHref(home.heroPrimaryHref)} className="btn-citrus">{home.heroPrimaryLabel}</Link>
+              <Link href={safeHref(home.heroSecondaryHref)} className="btn-ghost-light">{home.heroSecondaryLabel}</Link>
             </div>
           </div>
+          {home.heroImage?.startsWith("/images/photos/") && (
+            <Link href="/credits" className="absolute bottom-3 left-5 text-[10px] uppercase tracking-[0.14em] text-ivory/50 hover:text-ivory sm:left-8 lg:left-12">Representative photography</Link>
+          )}
           {brand.showTagline && brand.tagline && (
             <p className="absolute bottom-8 right-8 hidden font-display text-lg italic text-gold lg:block">{brand.tagline}</p>
           )}
         </div>
       </section>
+
+      {/* ── Live harvest status ────────────────────────── */}
+      <div className="border-b border-sand-300 bg-ivory">
+        <div className="container-x flex flex-wrap items-center gap-x-8 gap-y-2 py-4 text-[13px]" aria-live="polite">
+          <span className="flex items-center gap-2 font-semibold text-forest">
+            <span className={`relative flex h-2.5 w-2.5`}>
+              {inStock > 0 && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-citrus opacity-60 motion-reduce:hidden" />}
+              <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${inStock > 0 ? "bg-citrus" : "bg-sand-300"}`} />
+            </span>
+            {inStock > 0 ? `${open.map((c) => c.name).join(" & ")} harvest is open` : "Orders open with the next harvest"}
+          </span>
+          {open[0]?.season && <span className="text-stone">Season: {open[0].season}</span>}
+          {latestBatch?.packingDate && (
+            <Link href={`/trace/${latestBatch.code}`} className="text-stone hover:text-forest">
+              Latest batch packed {formatDate(latestBatch.packingDate, { day: "numeric", month: "long" })}{latestBatch.origin ? ` in ${latestBatch.origin.name}` : ""} →
+            </Link>
+          )}
+        </div>
+      </div>
 
       {/* ── Current harvest ────────────────────────────── */}
       <section className="py-24 sm:py-32" aria-labelledby="harvest-h">
@@ -81,8 +110,11 @@ export default async function HomePage() {
                     </div>
                     <ul className="mt-8 divide-y divide-sand-300 border-y border-sand-300">
                       {upcoming.map((c) => (
-                        <li key={c.id} className="flex items-baseline justify-between py-3">
-                          <span className="font-display text-xl text-forest">{c.name}</span>
+                        <li key={c.id} className="flex items-center justify-between gap-3 py-3">
+                          <span className="flex items-center gap-3">
+                            {c.image && <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-sand"><Image src={c.image} alt="" fill sizes="40px" className="object-cover" /></span>}
+                            <span className="font-display text-xl text-forest">{c.name}</span>
+                          </span>
                           <span className="text-xs uppercase tracking-[0.14em] text-stone">{c.season ?? "Upcoming"}</span>
                         </li>
                       ))}
@@ -186,7 +218,7 @@ export default async function HomePage() {
       <section className="py-24 sm:py-36" aria-labelledby="phil-h">
         <div className="container-x grid gap-14 lg:grid-cols-12 lg:items-center">
           <div className="lg:col-span-5">
-            <SmartImage src={home.philosophyImage} alt="Fruit from a Pakistani orchard" className="aspect-[4/5] w-full" sizes="(min-width:1024px) 40vw, 100vw" variant="day" seed={21} />
+            <SmartImage src={home.philosophyImage} alt="Ripe citrus fruit" className="aspect-[4/5] w-full" sizes="(min-width:1024px) 40vw, 100vw" variant="day" seed={21} />
           </div>
           <div className="lg:col-span-6 lg:col-start-7">
             <p className="eyebrow">Our philosophy</p>

@@ -2,9 +2,12 @@
 import Image from "next/image";
 import { useState } from "react";
 import { clsx } from "clsx";
+import { isAllowedImage } from "@/lib/safe";
 import { OrchardScene } from "@/components/ui/OrchardScene";
+import { isRepresentative, RepresentativeBadge } from "@/components/ui/SmartImage";
 
-export function Gallery({ images, alt }: { images: string[]; alt: string }) {
+export function Gallery({ images: all, alt }: { images: string[]; alt: string }) {
+  const images = all.filter(isAllowedImage);
   const [i, setI] = useState(0);
   if (!images.length) {
     return (
@@ -20,6 +23,7 @@ export function Gallery({ images, alt }: { images: string[]; alt: string }) {
         {images.map((src, k) => (
           <Image key={src} src={src} alt={`${alt} — image ${k + 1}`} fill priority={k === 0} sizes="(min-width: 1024px) 50vw, 100vw" className={clsx("object-cover transition-opacity duration-500", k === i ? "opacity-100" : "opacity-0")} />
         ))}
+        {isRepresentative(images[i]) && <RepresentativeBadge />}
       </div>
       {images.length > 1 && (
         <div className="no-scrollbar flex gap-3 overflow-x-auto lg:w-20 lg:flex-col">

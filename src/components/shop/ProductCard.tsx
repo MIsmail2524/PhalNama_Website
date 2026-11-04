@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SmartImage } from "@/components/ui/SmartImage";
 import { formatPKR } from "@/lib/format";
@@ -12,7 +13,7 @@ export function ProductCard({ product, priority }: { product: ProductCardData; p
   return (
     <article className="group flex flex-col">
       <div className="relative">
-        <Link href={`/shop/${product.slug}`} className="block" aria-label={product.name}>
+        <Link href={`/shop/${product.slug}`} className="relative block" aria-label={product.name}>
           <SmartImage
             src={product.images[0]}
             alt={product.name}
@@ -21,6 +22,9 @@ export function ProductCard({ product, priority }: { product: ProductCardData; p
             priority={priority}
             seed={product.name.length + 3}
           />
+          {product.images[1] && (
+            <Image src={product.images[1]} alt="" fill sizes="(min-width: 1024px) 33vw, 50vw" className="object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100 motion-reduce:hidden" />
+          )}
         </Link>
         <div className="absolute left-3 top-3 flex gap-2">
           {upcoming && <span className="bg-ivory/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-forest">Upcoming</span>}

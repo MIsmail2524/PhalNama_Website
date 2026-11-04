@@ -179,6 +179,30 @@ async function main() {
     });
   }
 
+  // ── Representative photography (only fills empty image fields) ──
+  const P = "/images/photos/";
+  const catImages: Record<string, string> = {
+    kinnow: "mandarins-picked", mangoes: "mango-tree", guavas: "guava", peaches: "peaches", apples: "apple-tree", dates: "dates-bowl",
+  };
+  for (const [slug, img] of Object.entries(catImages)) {
+    await prisma.category.updateMany({ where: { slug, image: null }, data: { image: `${P}${img}.jpg` } });
+  }
+  await prisma.product.updateMany({
+    where: { slug: "bhalwal-kinnow", images: { isEmpty: true } },
+    data: { images: ["mandarins-picked", "mandarins-closeup", "sliced-oranges-table", "peeled-orange", "crate-citrus"].map((n) => `${P}${n}.jpg`) },
+  });
+  await prisma.origin.updateMany({
+    where: { slug: "bhalwal-sargodha", heroImage: null },
+    data: { heroImage: `${P}orchard-three-oranges.jpg`, images: ["citrus-grove", "mandarin-tree-sky", "oranges-bunch-tree"].map((n) => `${P}${n}.jpg`) },
+  });
+  const covers: Record<string, string> = { "understanding-kinnow": "peeled-orange", "bhalwal-and-its-orchards": "orchard-three-oranges", "how-we-select-our-fruit": "crate-citrus" };
+  for (const [slug, img] of Object.entries(covers)) {
+    await prisma.article.updateMany({ where: { slug, coverImage: null }, data: { coverImage: `${P}${img}.jpg` } });
+  }
+  await prisma.page.updateMany({ where: { slug: "our-story", coverImage: null }, data: { coverImage: `${P}citrus-grove.jpg` } });
+  await prisma.passportChapter.updateMany({ where: { number: 1, image: null }, data: { image: `${P}mandarins-closeup.jpg` } });
+  await prisma.passportChapter.updateMany({ where: { number: 2, image: null }, data: { image: `${P}mango-tree.jpg` } });
+
   // ── First admin ──────────────────────────────────
   const email = process.env.SEED_ADMIN_EMAIL?.toLowerCase();
   const password = process.env.SEED_ADMIN_PASSWORD;

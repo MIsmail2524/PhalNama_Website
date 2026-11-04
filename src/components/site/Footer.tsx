@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/brand/Logo";
 import type { BrandSettings } from "@/lib/settings";
 import { displayPkPhone, whatsappLink } from "@/lib/phone";
+import { safeHref } from "@/lib/safe";
 import { NewsletterForm } from "./NewsletterForm";
 import { CookieSettingsLink } from "./CookieConsent";
 
@@ -81,7 +82,7 @@ export function Footer({ brand }: { brand: BrandSettings }) {
           {socials.length > 0 && (
             <ul className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-sm">
               {socials.map((s) => (
-                <li key={s.label}><a href={s.href} target="_blank" rel="noopener" className="text-ivory/75 hover:text-ivory">{s.label}</a></li>
+                <li key={s.label}><a href={safeHref(s.href)} target="_blank" rel="noopener noreferrer" className="text-ivory/75 hover:text-ivory">{s.label}</a></li>
               ))}
             </ul>
           )}
@@ -92,6 +93,8 @@ export function Footer({ brand }: { brand: BrandSettings }) {
           <p>© {year} {brand.name}. Grown in Pakistan.</p>
           <div className="flex gap-5">
             <CookieSettingsLink />
+            <Link href="/credits" className="hover:text-ivory">Photo credits</Link>
+            <Link href="/admin" className="hover:text-ivory" rel="nofollow">Team login</Link>
             <span className="urdu text-gold/80" lang="ur">{brand.nameUrdu}</span>
           </div>
         </div>
